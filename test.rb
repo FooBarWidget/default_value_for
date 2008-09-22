@@ -31,6 +31,8 @@ else
 end
 
 File.unlink('test.sqlite3') rescue nil
+ActiveRecord::Base.logger = Logger.new(STDERR)
+ActiveRecord::Base.logger.level = Logger::WARN
 ActiveRecord::Base.establish_connection(
 	:adapter => database_adapter,
 	:database => 'test.sqlite3'
@@ -47,12 +49,14 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		Object.send(:remove_const, name) rescue nil
 		eval("class #{name} < #{parent_class_name}; end", TOPLEVEL_BINDING)
 		klass = eval(name, TOPLEVEL_BINDING)
+		klass.class_eval do
+			set_table_name 'numbers'
+		end
 		klass.class_eval(&block) if block_given?
 	end
 	
 	def test_default_value_can_be_passed_as_argument
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for(:number, 1234)
 		end
 		object = TestClass.new
@@ -61,7 +65,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_default_value_can_be_passed_as_block
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for(:number) { 1234 }
 		end
 		object = TestClass.new
@@ -70,7 +73,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_overwrites_db_default
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for :count, 1234
 		end
 		object = TestClass.new
@@ -79,7 +81,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_doesnt_overwrite_values_provided_by_mass_assignment
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for :number, 1234
 		end
 		object = TestClass.new(:number => 1, :count => 2)
@@ -88,7 +89,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_doesnt_overwrite_values_provided_by_constructor_block
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for :number, 1234
 		end
 		object = TestClass.new do |x|
@@ -100,7 +100,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for :number, 1234
 		end
 		object = TestClass.new(:number => nil)
@@ -109,7 +108,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_default_values_are_inherited
 		define_model_class("TestSuperClass") do
-			set_table_name 'numbers'
 			default_value_for :number, 1234
 		end
 		define_model_class("TestClass", "TestSuperClass")
@@ -119,9 +117,27 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	
 	def test_doesnt_set_default_on_saved_records
 		define_model_class do
-			set_table_name 'numbers'
 			default_value_for :number, 1234
 		end
 		assert_equal 9876, TestClass.find(:first).number
+	end
+	
+	def test_also_works_with_attributes_that_arent_database_columns
+		define_model_class do
+			default_value_for :hello, "hi"
+			attr_accessor :hello
+		end
+		object = TestClass.new
+		assert_equal 'hi', object.hello
+	end
+	
+	def test_constructor_ignores_forbidden_mass_assignment_attributes
+		define_model_class do
+			default_value_for :number, 1234
+			attr_protected :number
+		end
+		object = TestClass.new(:number => 5678, :count => 987)
+		assert_equal 1234, object.number
+		assert_equal 987, object.count
 	end
 end

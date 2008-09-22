@@ -60,8 +60,15 @@ module DefaultValuePlugin
 	module InstanceMethods
 		def initialize_with_defaults(attrs = nil)
 			initialize_without_defaults(attrs) do
+				if attrs
+					stringified_attrs = attrs.stringify_keys!
+					safe_attrs = remove_attributes_protected_from_mass_assignment(stringified_attrs)
+					safe_attribute_names = safe_attrs.keys.map do |x|
+						x.to_s
+					end
+				end
 				self.class._default_attribute_values.each_pair do |attribute, container|
-					if attrs.nil? || !attrs.keys.map(&:to_s).include?(attribute)
+					if safe_attribute_names.nil? || !safe_attribute_names.include?(attribute)
 						__send__("#{attribute}=", container.evaluate)
 					end
 				end
