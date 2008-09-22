@@ -18,6 +18,13 @@ models in a declarative manner. For example:
 section. Please read on.
 
 
+== Installation
+
+Install with:
+
+  ./script/plugin install git://github.com/FooBarWidget/default_value_for.git
+
+
 == The default_value_for method
 
 The +default_value_for+ method is available in all ActiveRecord model classes.
@@ -144,24 +151,33 @@ It works with anything for which there's an assignment method:
 
 === Caveats
 
-If your model class overrides the 'initialize' method, then it *must* accept
-an attributes hash as the first argument. For example, things will go wrong if
-your class looks like this:
+A conflict can occur if your model class overrides the 'initialize' method,
+because this plugin overrides 'initialize' as well to do its job.
 
-  class User
-    def initialize  # <-- ERROR: must accept an attributes hash
+  class User < ActiveRecord::Base
+    def initialize  # <-- this constructor causes problems
       super(:name => 'Name cannot be changed in constructor')
     end
   end
 
-In this case, you just have to change the signature a slight bit:
+We recommend you to alias chain your initialize method in models where you use
++default_value_for+:
 
-  class User
-    def initialize(attrs = {})  # <-- notice the default argument value
-      super(:name => 'Name cannot be changed in constructor')
+  class User < ActiveRecord::Base
+    default_value_for :age, 20
+    
+    def initialize_with_my_app
+      initialize_without_my_app(:name => 'Name cannot be changed in constructor')
     end
+    
+    alias_method_chain :initialize, :my_app
   end
 
+Also, stick with the following rules:
+- There is no need to +alias_method_chain+ your initialize method in models that
+  don't use +default_value_for+.
+- Make sure that +alias_method_chain+ is called *after* the last
+  +default_value_for+ occurance.
 
 == When (not) to use default_value_for?
 
