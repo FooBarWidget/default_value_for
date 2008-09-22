@@ -42,9 +42,19 @@ ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
 	t.integer :number
 	t.integer :count, :null => false, :default => 1
 end
-ActiveRecord::Base.connection.insert("INSERT INTO numbers (number) VALUES (9876)")
+
+class Number < ActiveRecord::Base
+end
 
 class DefaultValuePluginTest < Test::Unit::TestCase
+	def setup
+		Number.create(:number => 9876)
+	end
+	
+	def teardown
+		Number.delete_all
+	end
+	
 	def define_model_class(name = "TestClass", parent_class_name = "ActiveRecord::Base", &block)
 		Object.send(:remove_const, name) rescue nil
 		eval("class #{name} < #{parent_class_name}; end", TOPLEVEL_BINDING)
@@ -69,6 +79,14 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		end
 		object = TestClass.new
 		assert_equal 1234, object.number
+	end
+	
+	def test_works_with_create
+		define_model_class do
+			default_value_for :number, 1234
+		end
+		TestClass.create
+		assert_not_nil TestClass.find_by_number(1234)
 	end
 	
 	def test_overwrites_db_default
@@ -122,7 +140,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 9876, TestClass.find(:first).number
 	end
 	
-	def test_also_works_with_attributes_that_arent_database_columns
+	def test_also_works_on_attributes_that_arent_database_columns
 		define_model_class do
 			default_value_for :hello, "hi"
 			attr_accessor :hello
@@ -139,5 +157,20 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new(:number => 5678, :count => 987)
 		assert_equal 1234, object.number
 		assert_equal 987, object.count
+	end
+	
+	def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
+		define_model_class do
+			def initialize(attrs = {})
+				@initialized = true
+				super(:count => 5678)
+			end
+			
+			default_value_for :number, 1234
+		end
+		object = TestClass.new
+		assert_equal 1234, object.number
+		assert_equal 5678, object.count
+		assert object.instance_variable_get('@initialized')
 	end
 end
