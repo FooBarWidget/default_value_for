@@ -113,7 +113,7 @@ then it will be filled in:
   user = User.new(:name => "Jane")
   user.name   # => "Joe"
 
-=== Inhertiance
+=== Inheritance
 
 Inheritance works as expected. All default values are inherited by the child
 class:
