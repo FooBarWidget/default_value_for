@@ -346,7 +346,7 @@ ActiveRecord Defaults will do when attributes are protected by +attr_protected+
 or +attr_accessible+. It is also not clearly specified what one is supposed to
 do if one needs a custom +initialize+ method in the model.
 
-We've taken our time to thoroughly document default_value_for's behavior.
+I've taken my time to thoroughly document default_value_for's behavior.
 
 
 == Credits
