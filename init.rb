@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module DefaultValuePlugin
+module DefaultValueForPlugin
 	class NormalValueContainer
 		def initialize(value)
 			@value = value
@@ -77,4 +77,4 @@ module DefaultValuePlugin
 	end
 end
 
-ActiveRecord::Base.extend(DefaultValuePlugin::ClassMethods)
+ActiveRecord::Base.extend(DefaultValueForPlugin::ClassMethods)
