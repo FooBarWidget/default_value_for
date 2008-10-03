@@ -179,6 +179,7 @@ Also, stick with the following rules:
 - Make sure that +alias_method_chain+ is called *after* the last
   +default_value_for+ occurance.
 
+
 == When (not) to use default_value_for?
 
 You can also specify default values in the database schema. For example, you
@@ -200,7 +201,15 @@ This has the same effect as passing the default value as the second argument to
 
 It's recommended that you use this over +default_value_for+ whenever possible.
 
-However, if schema defaults don't provide the flexibility that you need, then
+However, it's not possible to specify a schema default for serialized columns.
+With +default_value_for+, you can:
+
+  class User < ActiveRecord::Base
+    serialize :color
+    default_value_for :color, [255, 0, 0]
+  end
+
+And if schema defaults don't provide the flexibility that you need, then
 +default_value_for+ is the perfect choice. For example, with +default_value_for+
 you could specify a per-environment default:
 
@@ -231,6 +240,26 @@ the record is instantiated:
   User.new.account_expires_at   # => Mon Sep 22 18:43:42 +0200 2008
   sleep(2)
   User.new.account_expires_at   # => Mon Sep 22 18:43:44 +0200 2008
+
+Finally, it's also possible to specify a default via an association:
+
+  # Has columns: 'name' and 'default_price'
+  class SuperMarket < ActiveRecord::Base
+    has_many :products
+  end
+  
+  # Has columns: 'name' and 'price'
+  class Product < ActiveRecord::Base
+    belongs_to :super_market
+    
+    default_value_for :price do |product|
+      product.super_market.default_price
+    end
+  end
+  
+  super_market = SuperMarket.create(:name => 'Albert Zwijn', :default_price => 100)
+  soap = super_market.products.create(:name => 'Soap')
+  soap.price   # => 100
 
 === What about before_validate/before_save?
 

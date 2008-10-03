@@ -37,10 +37,19 @@ ActiveRecord::Base.establish_connection(
 	:adapter => database_adapter,
 	:database => 'test.sqlite3'
 )
+ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
+	t.string :username
+	t.integer :default_number
+end
 ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
 	t.string :type
 	t.integer :number
 	t.integer :count, :null => false, :default => 1
+	t.integer :user_id
+end
+
+class User < ActiveRecord::Base
+	has_many :numbers, :class_name => 'TestClass'
 end
 
 class Number < ActiveRecord::Base
@@ -172,5 +181,29 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 1234, object.number
 		assert_equal 5678, object.count
 		assert object.instance_variable_get('@initialized')
+	end
+	
+	def test_model_instance_is_passed_to_the_given_block
+		$instance = nil
+		define_model_class do
+			default_value_for :number do |n|
+				$instance = n
+			end
+		end
+		object = TestClass.new
+		assert_same object, $instance
+	end
+	
+	def test_can_specify_default_value_via_association
+		user = User.create(:username => 'Kanako', :default_number => 123)
+		define_model_class do
+			belongs_to :user
+			
+			default_value_for :number do |n|
+				n.user.default_number
+			end
+		end
+		object = user.numbers.create
+		assert_equal 123, object.number
 	end
 end

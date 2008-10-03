@@ -24,19 +24,18 @@ module DefaultValuePlugin
 			@value = value
 		end
 	
-		def evaluate
+		def evaluate(instance)
 			return @value
 		end
 	end
 	
 	class BlockValueContainer
-		def initialize(model_object, block)
-			@model_object = self
+		def initialize(block)
 			@block = block
 		end
 	
-		def evaluate
-			return @block.call(@model_object)
+		def evaluate(instance)
+			return @block.call(instance)
 		end
 	end
 	
@@ -49,7 +48,7 @@ module DefaultValuePlugin
 				self._default_attribute_values = {}
 			end
 			if block_given?
-				container = BlockValueContainer.new(self, block)
+				container = BlockValueContainer.new(block)
 			else
 				container = NormalValueContainer.new(value)
 			end
@@ -69,7 +68,7 @@ module DefaultValuePlugin
 				end
 				self.class._default_attribute_values.each_pair do |attribute, container|
 					if safe_attribute_names.nil? || !safe_attribute_names.include?(attribute)
-						__send__("#{attribute}=", container.evaluate)
+						__send__("#{attribute}=", container.evaluate(self))
 					end
 				end
 				yield(self) if block_given?
