@@ -332,6 +332,22 @@ to do that. Can we do better? Let's see:
 
 That's an awful lot of code. Using +default_value_for+ is easier, don't you think?
 
+=== What about other plugins?
+
+I've only been able to find 2 similar plugins:
+
+- Default Value: http://agilewebdevelopment.com/plugins/default_value
+- ActiveRecord Defaults: http://agilewebdevelopment.com/plugins/activerecord_defaults
+
+'Default Value' appears to be unmaintained; its SVN link is broken. This leaves
+only 'ActiveRecord Defaults'. However, it is semantically dubious, which leaves
+it wide open for corner cases. For example, it is not clearly specified what
+ActiveRecord Defaults will do when attributes are protected by +attr_protected+
+or +attr_accessible+. It is also not clearly specified what one is supposed to
+do if one needs a custom +initialize+ method in the model.
+
+We've taken our time to thoroughly document default_value_for's behavior.
+
 
 == Credits
 
