@@ -73,6 +73,20 @@ whatever reason:
     end
   end
 
+== The default_values method
+
+As a shortcut, you can use +default_values+ to set multiple default values at once.
+
+  default_values :age  => 20
+                 :uuid => lambda { UuidGenerator.new.generate_uuid }
+
+The difference is purely aesthetic.  If you have lots of default values which are constants or constructed with one-line blocks, +default_values+ may look nicer.  If you have default values constructed by longer blocks, +default_value_for+ suit you better.  Feel free to mix and match.
+
+As a side note, due to specifics of Ruby's parser, you cannot say,
+
+  default_value :uuid { UuidGenerator.new.generate_uuid }
+
+because it will not parse.  This is in part the inspiration for the +default_values+ syntax.
 
 == Rules
 

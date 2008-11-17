@@ -54,6 +54,16 @@ module DefaultValueForPlugin
 			end
 			_default_attribute_values[attribute.to_s] = container
 		end
+    
+    def default_values(values)
+      values.each_pair do |key, value|
+        if value.kind_of? Proc
+          default_value_for(key, &value)
+        else
+          default_value_for(key, value)
+        end
+      end
+    end
 	end
 	
 	module InstanceMethods
