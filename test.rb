@@ -206,4 +206,15 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = user.numbers.create
 		assert_equal 123, object.number
 	end
+	
+	def test_default_values
+		define_model_class do
+			default_values :type => "normal",
+			               :number => lambda { 10 + 5 }
+		end
+		
+		object = TestClass.new
+		assert_equal("normal", object.type)
+		assert_equal(15, object.number)
+	end
 end
