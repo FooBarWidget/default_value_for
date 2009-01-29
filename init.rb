@@ -45,7 +45,7 @@ module DefaultValueForPlugin
 				include(InstanceMethods)
 				alias_method_chain :initialize, :defaults
 				class_inheritable_accessor :_default_attribute_values
-				self._default_attribute_values = {}
+				self._default_attribute_values = ActiveSupport::OrderedHash.new
 			end
 			if block_given?
 				container = BlockValueContainer.new(block)
@@ -76,7 +76,7 @@ module DefaultValueForPlugin
 						x.to_s
 					end
 				end
-				self.class._default_attribute_values.each_pair do |attribute, container|
+				self.class._default_attribute_values.each do |attribute, container|
 					if safe_attribute_names.nil? || !safe_attribute_names.include?(attribute)
 						__send__("#{attribute}=", container.evaluate(self))
 					end
