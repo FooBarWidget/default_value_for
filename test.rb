@@ -217,4 +217,16 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal("normal", object.type)
 		assert_equal(15, object.number)
 	end
+	
+	def test_default_value_order
+	  define_model_class do
+	    default_value_for :count, 5
+	    default_value_for :number do |this|
+	      this.count * 2
+      end
+    end
+    object = TestClass.new
+		assert_equal(5, object.count)
+		assert_equal(10, object.number)
+  end
 end
