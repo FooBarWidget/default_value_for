@@ -1,5 +1,6 @@
 task :default => :test
 
+desc "Run unit tests."
 task :test do
-	sh "ruby test.rb"
+	ruby "test.rb"
 end
