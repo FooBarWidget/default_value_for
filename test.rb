@@ -1,4 +1,4 @@
-# Copyright (c) 2008 Phusion
+# Copyright (c) 2008, 2009 Phusion
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -228,5 +228,20 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_equal(5, object.count)
 		assert_equal(10, object.number)
+	end
+	
+	def test_attributes_with_default_values_are_not_marked_as_changed
+		define_model_class do
+			default_value_for :count, 5
+			default_value_for :number, 2
+		end
+		
+		object = TestClass.new
+		assert(!object.changed?)
+		assert_equal([], object.changed)
+		
+		object.type = "foo"
+		assert(object.changed?)
+		assert_equal(["type"], object.changed)
 	end
 end
