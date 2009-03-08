@@ -244,4 +244,15 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert(object.changed?)
 		assert_equal(["type"], object.changed)
 	end
+	
+	def test_default_values_are_not_duplicated
+		define_model_class do
+			set_table_name "users"
+			default_value_for :username, "hello"
+		end
+		user1 = TestClass.new
+		user1.username << " world"
+		user2 = TestClass.new
+		assert_equal("hello world", user2.username)
+	end
 end
