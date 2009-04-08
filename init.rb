@@ -70,7 +70,7 @@ module DefaultValueForPlugin
 		def initialize_with_defaults(attrs = nil)
 			initialize_without_defaults(attrs) do
 				if attrs
-					stringified_attrs = attrs.stringify_keys!
+					stringified_attrs = attrs.stringify_keys
 					safe_attrs = remove_attributes_protected_from_mass_assignment(stringified_attrs)
 					safe_attribute_names = safe_attrs.keys.map do |x|
 						x.to_s

@@ -255,4 +255,15 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		user2 = TestClass.new
 		assert_equal("hello world", user2.username)
 	end
+	
+	def test_constructor_does_not_affect_the_hash_passed_to_it
+		define_model_class do
+			default_value_for :count, 5
+		end
+		
+		options = { :count => 5, :user_id => 1 }
+		options_dup = options.dup
+		object = TestClass.new(options)
+		assert_equal(options_dup, options)
+	end
 end
