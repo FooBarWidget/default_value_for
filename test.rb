@@ -46,6 +46,7 @@ ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
 	t.integer :number
 	t.integer :count, :null => false, :default => 1
 	t.integer :user_id
+	t.timestamp :timestamp
 end
 
 class User < ActiveRecord::Base
@@ -112,6 +113,15 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		end
 		object = TestClass.new(:number => 1, :count => 2)
 		assert_equal 1, object.number
+	end
+  
+	def test_doesnt_overwrite_values_provided_by_multiparameter_assignment
+		define_model_class do
+			default_value_for :timestamp, Time.mktime(2000, 1, 1)
+		end
+		timestamp = Time.mktime(2009, 1, 1)
+		object = TestClass.new('timestamp(1i)' => '2009', 'timestamp(2i)' => '1', 'timestamp(3i)' => '1')
+		assert_equal timestamp, object.timestamp
 	end
 	
 	def test_doesnt_overwrite_values_provided_by_constructor_block

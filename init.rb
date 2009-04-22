@@ -77,7 +77,7 @@ module DefaultValueForPlugin
 					end
 				end
 				self.class._default_attribute_values.each do |attribute, container|
-					if safe_attribute_names.nil? || !safe_attribute_names.include?(attribute)
+					if safe_attribute_names.nil? || safe_attribute_names.none? { |attr_name| attr_name =~ /^#{attribute}($|\()/ }
 						__send__("#{attribute}=", container.evaluate(self))
 						changed_attributes.delete(attribute)
 					end
