@@ -194,7 +194,9 @@ which returns a new object instance every time:
   class Book < ActiveRecord::Base
     belongs_to :author
     
-    default_value_for :author { Author.new }
+    default_value_for :author do
+      Author.new
+    end
   end
   
   book1 = Book.new
