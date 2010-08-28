@@ -249,16 +249,20 @@ can specify a default value in a migration as follows:
   create_table :users do |t|
     t.string    :username,  :null => false, :default => 'default username'
     t.integer   :age,       :null => false, :default => 20
-    t.timestamp :last_seen, :null => false, :default => Time.now
   end
 
-This has the same effect as passing the default value as the second argument to
+This has similar effects as passing the default value as the second argument to
 +default_value_for+:
+
+  default_value_for(:username, 'default_username')
+  default_value_for(:age, 20)
+
+Default values are filled in whether you use the schema defaults or the
+default_value_for defaults:
 
   user = User.new
   user.username   # => 'default username'
   user.age        # => 20
-  user.timestamp  # => Mon Sep 22 18:31:47 +0200 2008
 
 It's recommended that you use this over +default_value_for+ whenever possible.
 
