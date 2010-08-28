@@ -72,9 +72,9 @@ module DefaultValueForPlugin
 				if attrs
 					stringified_attrs = attrs.stringify_keys
 					safe_attrs = if respond_to? :sanitize_for_mass_assignment
-					  sanitize_for_mass_assignment(stringified_attrs)
+						sanitize_for_mass_assignment(stringified_attrs)
 					else
-					  remove_attributes_protected_from_mass_assignment(stringified_attrs)
+						remove_attributes_protected_from_mass_assignment(stringified_attrs)
 					end
 					safe_attribute_names = safe_attrs.keys.map do |x|
 						x.to_s
