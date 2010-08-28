@@ -25,7 +25,11 @@ module DefaultValueForPlugin
 		end
 	
 		def evaluate(instance)
-			return @value
+			if @value.duplicable?
+				return @value.dup
+			else
+				return @value
+			end
 		end
 	end
 	

@@ -163,11 +163,11 @@ It works with anything for which there's an assignment method:
   user.age    # => 20
   user.instance_variable_get('@registering')    # => true
 
-=== Default values are *not* duplicated
+=== Default values are duplicated
 
-The given default values are *not* duplicated when they are filled in, so if
-you mutate a value that was filled in with a default value, then it will affect
-all subsequent default values:
+The given default values are duplicated when they are filled in, so if
+you mutate a value that was filled in with a default value, then it will
+not affect all subsequent default values:
 
   class Author < ActiveRecord::Base
     # This model only has a 'name' attribute.
@@ -182,33 +182,44 @@ all subsequent default values:
   
   book1 = Book.new
   book1.author.name  # => nil
-  # This mutates the default value:
-  book1.author.name = "John"
-  
-  book2 = Book.new
-  book2.author.name  # => "John"
-
-You can prevent this from happening by passing a block to +default_value_for+,
-which returns a new object instance every time:
-
-  class Book < ActiveRecord::Base
-    belongs_to :author
-    
-    default_value_for :author do
-      Author.new
-    end
-  end
-  
-  book1 = Book.new
-  book1.author.name  # => nil
+  # This does not mutate the default value:
   book1.author.name = "John"
   
   book2 = Book.new
   book2.author.name  # => nil
 
-The main reason why default values are not duplicated is because not all
-objects can be duplicated. For example, +Fixnum+ responds to +dup+, but calling
-+dup+ on a Fixnum will raise an exception.
+However the duplication is shallow. If you modify any objects that are
+referenced by the default value then it will affect subsequent default values:
+
+  class Author < ActiveRecord::Base
+    attr_accessor :useless_hash
+    default_value_for :useless_hash, { :foo => [] }
+  end
+  
+  author1 = Author.new
+  author1.useless_hash    # => { :foo => [] }
+  # This mutates the referred array:
+  author1.useless_hash[:foo] << 1
+  
+  author2 = Author.new
+  author2.useless_hash    # => { :foo => [1] }
+
+You can prevent this from happening by passing a block to +default_value_for+,
+which returns a new object instance with fresh references every time:
+
+  class Author < ActiveRecord::Base
+    attr_accessor :useless_hash
+    default_value_for :useless_hash do
+      { :foo => [] }
+    end
+  end
+  
+  author1 = Author.new
+  author1.useless_hash    # => { :foo => [] }
+  author1.useless_hash[:foo] << 1
+  
+  author2 = Author.new
+  author2.useless_hash    # => { :foo => [] }
 
 === Caveats
 

@@ -255,7 +255,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal(["type"], object.changed)
 	end
 	
-	def test_default_values_are_not_duplicated
+	def test_default_values_are_duplicated
 		define_model_class do
 			set_table_name "users"
 			default_value_for :username, "hello"
@@ -263,7 +263,19 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		user1 = TestClass.new
 		user1.username << " world"
 		user2 = TestClass.new
-		assert_equal("hello world", user2.username)
+		assert_equal("hello", user2.username)
+	end
+	
+	def test_default_values_are_shallow_copied
+		define_model_class do
+			set_table_name "users"
+			attr_accessor :hash
+			default_value_for :hash, { 1 => [] }
+		end
+		user1 = TestClass.new
+		user1.hash[1] << 1
+		user2 = TestClass.new
+		assert_equal([1], user2.hash[1])
 	end
 	
 	def test_constructor_does_not_affect_the_hash_passed_to_it
