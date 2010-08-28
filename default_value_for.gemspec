@@ -6,4 +6,5 @@ Gem::Specification.new do |s|
   s.email = %q{info@phusion.nl}
   s.homepage = %q{http://github.com/FooBarWidget/default_value_for}
   s.authors = ["Hongli Lai"]
+  s.files = ['default_value_for.gemspec', 'init.rb', 'LICENSE.TXT', 'Rakefile', 'README.rdoc', 'test.rb']
 end
