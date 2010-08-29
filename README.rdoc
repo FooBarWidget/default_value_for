@@ -77,7 +77,7 @@ whatever reason:
 
 As a shortcut, you can use +default_values+ to set multiple default values at once.
 
-  default_values :age  => 20
+  default_values :age  => 20,
                  :uuid => lambda { UuidGenerator.new.generate_uuid }
 
 The difference is purely aesthetic.  If you have lots of default values which are constants or constructed with one-line blocks, +default_values+ may look nicer.  If you have default values constructed by longer blocks, +default_value_for+ suit you better.  Feel free to mix and match.
