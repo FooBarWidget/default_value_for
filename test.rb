@@ -1,15 +1,15 @@
 # Copyright (c) 2008, 2009 Phusion
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,6 +21,8 @@
 require 'rubygems'
 require 'active_record'
 require 'test/unit'
+require 'active_support/core_ext/logger'
+$LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
 require File.dirname(__FILE__) + '/init'
 Dir.chdir(File.dirname(__FILE__))
 
@@ -60,11 +62,11 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	def setup
 		Number.create(:number => 9876)
 	end
-	
+
 	def teardown
 		Number.delete_all
 	end
-	
+
 	def define_model_class(name = "TestClass", parent_class_name = "ActiveRecord::Base", &block)
 		Object.send(:remove_const, name) rescue nil
 		eval("class #{name} < #{parent_class_name}; end", TOPLEVEL_BINDING)
@@ -74,7 +76,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		end
 		klass.class_eval(&block) if block_given?
 	end
-	
+
 	def test_default_value_can_be_passed_as_argument
 		define_model_class do
 			default_value_for(:number, 1234)
@@ -82,7 +84,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_equal 1234, object.number
 	end
-	
+
 	def test_default_value_can_be_passed_as_block
 		define_model_class do
 			default_value_for(:number) { 1234 }
@@ -90,7 +92,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_equal 1234, object.number
 	end
-	
+
 	def test_works_with_create
 		define_model_class do
 			default_value_for :number, 1234
@@ -98,7 +100,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		TestClass.create
 		assert_not_nil TestClass.find_by_number(1234)
 	end
-	
+
 	def test_overwrites_db_default
 		define_model_class do
 			default_value_for :count, 1234
@@ -106,7 +108,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_equal 1234, object.count
 	end
-	
+
 	def test_doesnt_overwrite_values_provided_by_mass_assignment
 		define_model_class do
 			default_value_for :number, 1234
@@ -114,7 +116,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new(:number => 1, :count => 2)
 		assert_equal 1, object.number
 	end
-  
+
 	def test_doesnt_overwrite_values_provided_by_multiparameter_assignment
 		define_model_class do
 			default_value_for :timestamp, Time.mktime(2000, 1, 1)
@@ -123,7 +125,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new('timestamp(1i)' => '2009', 'timestamp(2i)' => '1', 'timestamp(3i)' => '1')
 		assert_equal timestamp, object.timestamp
 	end
-	
+
 	def test_doesnt_overwrite_values_provided_by_constructor_block
 		define_model_class do
 			default_value_for :number, 1234
@@ -134,7 +136,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		end
 		assert_equal 1, object.number
 	end
-	
+
 	def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment
 		define_model_class do
 			default_value_for :number, 1234
@@ -142,7 +144,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new(:number => nil)
 		assert_nil object.number
 	end
-	
+
 	def test_default_values_are_inherited
 		define_model_class("TestSuperClass") do
 			default_value_for :number, 1234
@@ -151,14 +153,14 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_equal 1234, object.number
 	end
-	
+
 	def test_doesnt_set_default_on_saved_records
 		define_model_class do
 			default_value_for :number, 1234
 		end
 		assert_equal 9876, TestClass.find(:first).number
 	end
-	
+
 	def test_also_works_on_attributes_that_arent_database_columns
 		define_model_class do
 			default_value_for :hello, "hi"
@@ -167,7 +169,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_equal 'hi', object.hello
 	end
-	
+
 	def test_constructor_ignores_forbidden_mass_assignment_attributes
 		define_model_class do
 			default_value_for :number, 1234
@@ -177,14 +179,14 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 1234, object.number
 		assert_equal 987, object.count
 	end
-	
+
 	def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
 		define_model_class do
 			def initialize(attrs = {})
 				@initialized = true
 				super(:count => 5678)
 			end
-			
+
 			default_value_for :number, 1234
 		end
 		object = TestClass.new
@@ -192,7 +194,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 5678, object.count
 		assert object.instance_variable_get('@initialized')
 	end
-	
+
 	def test_model_instance_is_passed_to_the_given_block
 		$instance = nil
 		define_model_class do
@@ -203,12 +205,12 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = TestClass.new
 		assert_same object, $instance
 	end
-	
+
 	def test_can_specify_default_value_via_association
 		user = User.create(:username => 'Kanako', :default_number => 123)
 		define_model_class do
 			belongs_to :user
-			
+
 			default_value_for :number do |n|
 				n.user.default_number
 			end
@@ -216,18 +218,18 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		object = user.numbers.create
 		assert_equal 123, object.number
 	end
-	
+
 	def test_default_values
 		define_model_class do
 			default_values :type => "normal",
 			               :number => lambda { 10 + 5 }
 		end
-		
+
 		object = TestClass.new
 		assert_equal("normal", object.type)
 		assert_equal(15, object.number)
 	end
-	
+
 	def test_default_value_order
 		define_model_class do
 			default_value_for :count, 5
@@ -239,22 +241,22 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal(5, object.count)
 		assert_equal(10, object.number)
 	end
-	
+
 	def test_attributes_with_default_values_are_not_marked_as_changed
 		define_model_class do
 			default_value_for :count, 5
 			default_value_for :number, 2
 		end
-		
+
 		object = TestClass.new
 		assert(!object.changed?)
 		assert_equal([], object.changed)
-		
+
 		object.type = "foo"
 		assert(object.changed?)
 		assert_equal(["type"], object.changed)
 	end
-	
+
 	def test_default_values_are_duplicated
 		define_model_class do
 			set_table_name "users"
@@ -265,7 +267,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		user2 = TestClass.new
 		assert_equal("hello", user2.username)
 	end
-	
+
 	def test_default_values_are_shallow_copied
 		define_model_class do
 			set_table_name "users"
@@ -277,12 +279,12 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		user2 = TestClass.new
 		assert_equal([1], user2.hash[1])
 	end
-	
+
 	def test_constructor_does_not_affect_the_hash_passed_to_it
 		define_model_class do
 			default_value_for :count, 5
 		end
-		
+
 		options = { :count => 5, :user_id => 1 }
 		options_dup = options.dup
 		object = TestClass.new(options)
