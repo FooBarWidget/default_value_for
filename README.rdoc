@@ -302,7 +302,7 @@ And if schema defaults don't provide the flexibility that you need, then
 you could specify a per-environment default:
 
   class User < ActiveRecord::Base
-    if RAILS_ENV == "development"
+    if Rails.env == "development"
       default_value_for :is_admin, true
     end
   end
