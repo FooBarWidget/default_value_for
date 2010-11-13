@@ -32,7 +32,7 @@ You can either install it as a plugin:
 
   rails plugin install git://github.com/FooBarWidget/default_value_for.git
 
-or install it by add it to your Gemfile:
+or install it by adding it to your Gemfile:
 
   gem "default_value_for"
 
