@@ -96,9 +96,13 @@ The difference is purely aesthetic.  If you have lots of default values which ar
 
 As a side note, due to specifics of Ruby's parser, you cannot say,
 
-  default_value :uuid { UuidGenerator.new.generate_uuid }
+  default_value_for :uuid { UuidGenerator.new.generate_uuid }
 
-because it will not parse.  This is in part the inspiration for the +default_values+ syntax.
+because it will not parse. One needs to write
+
+  default_value_for(:uuid) { UuidGenerator.new.generate_uuid }
+
+instead. This is in part the inspiration for the +default_values+ syntax.
 
 == Rules
 
