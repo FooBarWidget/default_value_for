@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require 'rubygems'
+gem 'activerecord', '~> 3.0.0'
 require 'active_record'
 require 'test/unit'
 require 'active_support/core_ext/logger'

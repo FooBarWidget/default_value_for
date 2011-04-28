@@ -1,4 +1,4 @@
-# Copyright (c) 2008, 2009, 2010 Phusion
+# Copyright (c) 2008, 2009, 2010, 2011 Phusion
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,10 @@
 # Rails 3 initialization
 module DefaultValueForPlugin
 	if defined? Rails::Railtie
-		require 'rails'
 		class Railtie < Rails::Railtie
 			initializer 'default_value_for.insert_into_active_record' do
 				ActiveSupport.on_load :active_record do
+					require 'default_value_for/core'
 					ActiveRecord::Base.extend(DefaultValueForPlugin::ClassMethods)
 				end
 			end
