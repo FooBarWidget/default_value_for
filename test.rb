@@ -24,6 +24,7 @@ require 'active_record'
 require 'test/unit'
 require 'active_support/core_ext/logger'
 $LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
+require File.dirname(__FILE__) + '/lib/default_value_for'
 require File.dirname(__FILE__) + '/init'
 Dir.chdir(File.dirname(__FILE__))
 

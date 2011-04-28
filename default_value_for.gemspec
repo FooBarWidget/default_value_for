@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.files = ['default_value_for.gemspec',
     'LICENSE.TXT', 'Rakefile', 'README.rdoc', 'test.rb',
     'init.rb',
-    'lib/default_value_for/core.rb',
+    'lib/default_value_for.rb',
     'lib/default_value_for/railtie.rb'
   ]
 end
