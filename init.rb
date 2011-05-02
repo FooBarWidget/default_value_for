@@ -19,5 +19,4 @@
 # THE SOFTWARE.
 
 # Rails 2 initialization
-require "default_value_for/core"
-ActiveRecord::Base.extend(DefaultValueForPlugin::ClassMethods)
+ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
