@@ -224,7 +224,8 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 	def test_default_values
 		define_model_class do
 			default_values :type => "normal",
-			               :number => lambda { 10 + 5 }
+											:number => lambda { 10 + 5 },
+											:timestamp => lambda {|_| Time.now }
 		end
 
 		object = TestClass.new
