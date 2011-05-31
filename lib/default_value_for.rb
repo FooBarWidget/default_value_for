@@ -41,7 +41,11 @@ module DefaultValueFor
 		end
 
 		def evaluate(instance)
-			return @block.call(instance)
+			if @block.arity == 0
+				return @block.call
+			else
+				return @block.call(instance)
+			end
 		end
 	end
 
