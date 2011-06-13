@@ -77,8 +77,8 @@ module DefaultValueFor
 	end
 
 	module InstanceMethods
-		def initialize_with_defaults(attrs = nil)
-			initialize_without_defaults(attrs) do
+		def initialize_with_defaults(attrs = nil, *args)
+			initialize_without_defaults(attrs, *args) do
 				if attrs
 					stringified_attrs = attrs.stringify_keys
 					safe_attrs = if respond_to? :sanitize_for_mass_assignment
