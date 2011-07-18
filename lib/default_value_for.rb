@@ -54,7 +54,11 @@ module DefaultValueFor
 			if !method_defined?(:initialize_with_defaults)
 				include(InstanceMethods)
 				alias_method_chain :initialize, :defaults
-				class_inheritable_accessor :_default_attribute_values
+				if respond_to?(:class_attribute)
+					class_attribute :_default_attribute_values
+				else
+					class_inheritable_accessor :_default_attribute_values
+				end
 				self._default_attribute_values = ActiveSupport::OrderedHash.new
 			end
 			if block_given?
