@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'default_value_for/railtie' if defined? Rails::Railtie
+require 'default_value_for/railtie' if defined?(Rails::Railtie)
 
 module DefaultValueFor
 	class NormalValueContainer
