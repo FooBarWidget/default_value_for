@@ -18,8 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'default_value_for/railtie' if defined?(Rails::Railtie)
-
 module DefaultValueFor
 	class NormalValueContainer
 		def initialize(value)
@@ -104,4 +102,11 @@ module DefaultValueFor
 			end
 		end
 	end
+end
+
+if defined?(Rails::Railtie)
+	require 'default_value_for/railtie'
+else
+	# Rails 2 initialization
+	ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
 end

@@ -18,5 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Rails 2 initialization
-ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
+require 'default_value_for'
