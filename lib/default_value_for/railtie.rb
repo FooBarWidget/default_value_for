@@ -19,12 +19,17 @@
 # THE SOFTWARE.
 
 # Rails 3 initialization
+
 module DefaultValueFor
+	def self.initialize_railtie
+		ActiveSupport.on_load :active_record do
+			ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
+		end
+	end
+	
 	class Railtie < Rails::Railtie
 		initializer 'default_value_for.insert_into_active_record' do
-			ActiveSupport.on_load :active_record do
-				ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
-			end
+			DefaultValueFor.initialize_railtie
 		end
 	end
 end

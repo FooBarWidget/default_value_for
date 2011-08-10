@@ -18,14 +18,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+want_rails_version = '~> 3.1.0.rc1'
+
 require 'rubygems'
-gem 'activerecord', '~> 3.1.0.rc1'
+gem 'rails', want_rails_version
+gem 'activerecord', want_rails_version
+begin
+	require 'rails/railtie'
+rescue LoadError
+end
 require 'active_record'
 require 'test/unit'
+require 'active_support/dependencies'
 require 'active_support/core_ext/logger'
-$LOAD_PATH.unshift File.expand_path("../lib", __FILE__)
-require File.dirname(__FILE__) + '/lib/default_value_for'
-require File.dirname(__FILE__) + '/init'
+$LOAD_PATH.unshift File.expand_path("lib", File.dirname(__FILE__))
+require 'default_value_for'
 Dir.chdir(File.dirname(__FILE__))
 
 if RUBY_PLATFORM == "java"
@@ -52,6 +59,9 @@ ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
 	t.integer :user_id
 	t.timestamp :timestamp
 end
+
+DefaultValueFor.initialize_railtie if defined?(Rails::Railtie)
+ActiveSupport.run_load_hooks(:active_record) if ActiveSupport.respond_to?(:run_load_hooks)
 
 class User < ActiveRecord::Base
 	has_many :numbers, :class_name => 'TestClass'
