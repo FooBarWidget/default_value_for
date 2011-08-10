@@ -23,8 +23,12 @@
 module DefaultValueFor
 	def self.initialize_railtie
 		ActiveSupport.on_load :active_record do
-			ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
+			DefaultValueFor.initialize_active_record_extensions
 		end
+	end
+	
+	def self.initialize_active_record_extensions
+		ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
 	end
 	
 	class Railtie < Rails::Railtie

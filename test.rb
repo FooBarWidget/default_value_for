@@ -60,8 +60,10 @@ ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
 	t.timestamp :timestamp
 end
 
-DefaultValueFor.initialize_railtie if defined?(Rails::Railtie)
-ActiveSupport.run_load_hooks(:active_record) if ActiveSupport.respond_to?(:run_load_hooks)
+if defined?(Rails::Railtie)
+	DefaultValueFor.initialize_railtie
+	DefaultValueFor.initialize_active_record_extensions
+end
 
 class User < ActiveRecord::Base
 	has_many :numbers, :class_name => 'TestClass'
