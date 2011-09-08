@@ -220,19 +220,18 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_same object, $instance
 	end
 
-	# This is no longer supported starting from Rails 3.1 thanks to ActiveRecord changes.
-	# def test_can_specify_default_value_via_association
-	# 	user = User.create(:username => 'Kanako', :default_number => 123)
-	# 	define_model_class do
-	# 		belongs_to :user
-	# 
-	# 		default_value_for :number do |n|
-	# 			n.user.default_number
-	# 		end
-	# 	end
-	# 	object = user.numbers.create
-	# 	assert_equal 123, object.number
-	# end
+	def test_can_specify_default_value_via_association
+		user = User.create(:username => 'Kanako', :default_number => 123)
+		define_model_class do
+			belongs_to :user
+
+			default_value_for :number do |n|
+				n.user.default_number
+			end
+		end
+		object = user.numbers.create
+		assert_equal 123, object.number
+	end
 
 	def test_default_values
 		define_model_class do
