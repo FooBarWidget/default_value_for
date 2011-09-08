@@ -79,27 +79,26 @@ module DefaultValueFor
 	end
 
 	module InstanceMethods
-		def initialize_with_defaults(attrs = nil, *args)
-			initialize_without_defaults(attrs, *args) do
-				if attrs
-					stringified_attrs = attrs.stringify_keys
-					safe_attrs = if respond_to? :sanitize_for_mass_assignment
-						sanitize_for_mass_assignment(stringified_attrs)
-					else
-						remove_attributes_protected_from_mass_assignment(stringified_attrs)
-					end
-					safe_attribute_names = safe_attrs.keys.map do |x|
-						x.to_s
-					end
+		def initialize_with_defaults(attrs = nil, *args, &block)
+			initialize_without_defaults(attrs, *args, &block)
+			if attrs
+				stringified_attrs = attrs.stringify_keys
+				safe_attrs = if respond_to? :sanitize_for_mass_assignment
+					sanitize_for_mass_assignment(stringified_attrs)
+				else
+					remove_attributes_protected_from_mass_assignment(stringified_attrs)
 				end
-				self.class._default_attribute_values.each do |attribute, container|
-					if safe_attribute_names.nil? || !safe_attribute_names.any? { |attr_name| attr_name =~ /^#{attribute}($|\()/ }
-						__send__("#{attribute}=", container.evaluate(self))
-						changed_attributes.delete(attribute)
-					end
+				safe_attribute_names = safe_attrs.keys.map do |x|
+					x.to_s
 				end
-				yield(self) if block_given?
 			end
+			self.class._default_attribute_values.each do |attribute, container|
+				if safe_attribute_names.nil? || !safe_attribute_names.any? { |attr_name| attr_name =~ /^#{attribute}($|\()/ }
+					__send__("#{attribute}=", container.evaluate(self))
+					changed_attributes.delete(attribute)
+				end
+			end
+			yield(self) if block_given?
 		end
 	end
 end
