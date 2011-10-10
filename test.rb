@@ -182,6 +182,21 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_nil object.number
 	end
 
+	def test_multiple_default_values_in_subclass
+		define_model_class("TestSuperClass") do
+			default_value_for :other_number
+			attr_accessor :other_number
+		end
+		define_model_class("TestClass", "TestSuperClass") do
+			default_value_for :number, 5678
+			default_value_for :user_id, 9999
+		end
+
+		object = TestClass.new
+		assert_equal 5678, object.number
+		assert_equal 9999, object.user_id
+	end
+
 	def test_override_default_values_in_subclass
 		define_model_class("TestSuperClass") do
 			default_value_for :number, 1234

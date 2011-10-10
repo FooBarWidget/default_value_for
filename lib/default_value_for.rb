@@ -60,7 +60,7 @@ module DefaultValueFor
 				extend(DelayedClassMethods)
 				init_hash = true
 			end
-			if init_hash || !self.instance_methods(false).include?("_default_attribute_values")
+			if init_hash || !singleton_methods(false).include?("_default_attribute_values")
 				self._default_attribute_values = ActiveSupport::OrderedHash.new
 			end
 			if block_given?
