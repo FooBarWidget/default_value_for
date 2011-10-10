@@ -168,6 +168,48 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 1234, object.number
 	end
 
+	def test_default_values_in_subclass
+		define_model_class("TestSuperClass") do
+		end
+		define_model_class("TestClass", "TestSuperClass") do
+			default_value_for :number, 5678
+		end
+
+		object = TestClass.new
+		assert_equal 5678, object.number
+
+		object = TestSuperClass.new
+		assert_nil object.number
+	end
+
+	def test_override_default_values_in_subclass
+		define_model_class("TestSuperClass") do
+			default_value_for :number, 1234
+		end
+		define_model_class("TestClass", "TestSuperClass") do
+			default_value_for :number, 5678
+		end
+
+		object = TestClass.new
+		assert_equal 5678, object.number
+
+		object = TestSuperClass.new
+		assert_equal 1234, object.number
+	end
+
+	def test_default_values_in_subclass_do_not_affect_parent_class
+		define_model_class("TestSuperClass") do
+			default_value_for :number, 1234
+		end
+		define_model_class("TestClass", "TestSuperClass") do
+			default_value_for :hello, "hi"
+			attr_accessor :hello
+		end
+
+		assert_nothing_raised { TestSuperClass.new }
+		assert !TestSuperClass._default_attribute_values.include?(:hello)
+	end
+
 	def test_doesnt_set_default_on_saved_records
 		define_model_class do
 			default_value_for :number, 1234
