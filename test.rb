@@ -182,17 +182,22 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_nil object.number
 	end
 
-	def test_multiple_default_values_in_subclass
+	def test_multiple_default_values_in_subclass_with_default_values_in_parent_class
 		define_model_class("TestSuperClass") do
-			default_value_for :other_number
+			default_value_for :other_number, nil
 			attr_accessor :other_number
 		end
 		define_model_class("TestClass", "TestSuperClass") do
 			default_value_for :number, 5678
+
+			# Ensure second call in this class doesn't reset _default_attribute_values,
+			# and also doesn't consider the parent class' _default_attribute_values when
+			# making that check.
 			default_value_for :user_id, 9999
 		end
 
 		object = TestClass.new
+		assert_nil object.other_number
 		assert_equal 5678, object.number
 		assert_equal 9999, object.user_id
 	end
