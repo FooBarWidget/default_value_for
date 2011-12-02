@@ -57,6 +57,10 @@ module DefaultValueFor
 				else
 					class_inheritable_accessor :_default_attribute_values
 				end
+				extend(DelayedClassMethods)
+				init_hash = true
+			end
+			if init_hash || !singleton_methods(false).to_s.include?("_default_attribute_values")
 				self._default_attribute_values = ActiveSupport::OrderedHash.new
 			end
 			if block_given?
@@ -78,6 +82,13 @@ module DefaultValueFor
 		end
 	end
 
+	module DelayedClassMethods
+		def _all_default_attribute_values
+			return _default_attribute_values unless superclass.respond_to?(:_default_attribute_values)
+			superclass._all_default_attribute_values.merge(_default_attribute_values)
+		end
+	end
+
 	module InstanceMethods
 		def initialize_with_defaults(attrs = nil, *args, &block)
 			initialize_without_defaults(attrs, *args, &block)
@@ -92,7 +103,7 @@ module DefaultValueFor
 					x.to_s
 				end
 			end
-			self.class._default_attribute_values.each do |attribute, container|
+			self.class._all_default_attribute_values.each do |attribute, container|
 				if safe_attribute_names.nil? || !safe_attribute_names.any? { |attr_name| attr_name =~ /^#{attribute}($|\()/ }
 					__send__("#{attribute}=", container.evaluate(self))
 					changed_attributes.delete(attribute)
