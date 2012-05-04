@@ -49,9 +49,11 @@ module DefaultValueFor
 
 	module ClassMethods
 		def default_value_for(attribute, value = nil, &block)
-			if !method_defined?(:initialize_with_defaults)
+			if !method_defined?(:set_default_values)
 				include(InstanceMethods)
-				alias_method_chain :initialize, :defaults
+
+				after_initialize :set_default_values
+				
 				if respond_to?(:class_attribute)
 					class_attribute :_default_attribute_values
 				else
@@ -90,27 +92,16 @@ module DefaultValueFor
 	end
 
 	module InstanceMethods
-		def initialize_with_defaults(attrs = nil, *args, &block)
-			initialize_without_defaults(attrs, *args, &block)
-			if attrs
-				stringified_attrs = attrs.stringify_keys
-				safe_attrs = if respond_to? :sanitize_for_mass_assignment
-					sanitize_for_mass_assignment(stringified_attrs)
-				else
-					remove_attributes_protected_from_mass_assignment(stringified_attrs)
-				end
-				safe_attribute_names = safe_attrs.keys.map do |x|
-					x.to_s
-				end
-			end
-			self.class._all_default_attribute_values.each do |attribute, container|
-				if safe_attribute_names.nil? || !safe_attribute_names.any? { |attr_name| attr_name =~ /^#{attribute}($|\()/ }
-					__send__("#{attribute}=", container.evaluate(self))
-					changed_attributes.delete(attribute)
-				end
-			end
-			yield(self) if block_given?
-		end
+    def set_default_values
+      self.class._all_default_attribute_values.each do |attribute, container|
+        connection_default_value_defined = new_record? && respond_to?("#{attribute}_changed?") && !__send__("#{attribute}_changed?")
+        
+        next unless connection_default_value_defined || self.attributes[attribute].blank?
+
+        __send__("#{attribute}=", container.evaluate(self))
+        changed_attributes.delete(attribute)
+      end
+    end
 	end
 end
 
