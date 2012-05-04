@@ -111,11 +111,16 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		define_model_class do
 			default_value_for :number, 1234
 		end
-		TestClass.create
+		object = TestClass.create
 		assert_not_nil TestClass.find_by_number(1234)
+		
+		# works with existing record data which have changed outside the application / plain sql
+		object.update_attribute(:number, nil)
+		assert_nil TestClass.find_by_number(1234)
+		assert_not_nil TestClass.find(object.id).number
 	end
 
-	def test_overwrites_db_default
+ 	def test_overwrites_db_default
 		define_model_class do
 			default_value_for :count, 1234
 		end
@@ -151,12 +156,12 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 1, object.number
 	end
 
-	def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment
+	def test_overwrites_explicitly_provided_nil_values_in_mass_assignment
 		define_model_class do
 			default_value_for :number, 1234
 		end
 		object = TestClass.new(:number => nil)
-		assert_nil object.number
+		assert_equal 1234, object.number
 	end
 
 	def test_default_values_are_inherited
