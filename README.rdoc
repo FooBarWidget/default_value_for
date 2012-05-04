@@ -126,13 +126,13 @@ filled into the record. Consider the example with the UUID:
 But when attributes with default values were set to nil e.g. through manual SQL the default values will be set on retrieval.
 Consider this example:
 
-  object = TestClass.create
+  user = User.create
   
   # manual SQL by-passing active record and the default value for gem logic through ActiveRecord's after_initialize callback
-  object.update_attribute(:number, nil)
+  user.update_attribute(:number, nil)
   
   # declared default value should be set
-  assert_not_nil TestClass.find(object.id).number
+  User.find(user.id).number # => 123 # = declared default value
 
 === Mass-assignment
 
