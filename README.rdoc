@@ -154,6 +154,11 @@ then it will be filled in:
   user = User.new(:name => "Jane")
   user.name   # => "Joe"
 
+Explicitly set nil values will be overwritten by declared values, consider this example:
+
+  user = User(:number => nil)
+  user.number # => 123 # = declared default value
+
 === Inheritance
 
 Inheritance works as expected. All default values are inherited by the child
