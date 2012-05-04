@@ -113,7 +113,7 @@ the record. You've already seen this in the above examples.
 
 === Retrieval of existing record
 
-Upon retrieving an existing record, the declared default values are _not_
+Upon retrieving an existing record in the following case, the declared default values are _not_
 filled into the record. Consider the example with the UUID:
 
   user = User.create
@@ -122,6 +122,17 @@ filled into the record. Consider the example with the UUID:
   user = User.find(user.id)
   # UUID remains unchanged because it's retrieved from the database!
   user.uuid   # => "529c91b8bbd3e..."
+
+But when attributes with default values were set to nil e.g. through manual SQL the default values will be set on retrieval.
+Consider this example:
+
+  object = TestClass.create
+  
+  # manual SQL by-passing active record and the default value for gem logic through ActiveRecord's after_initialize callback
+  object.update_attribute(:number, nil)
+  
+  # declared default value should be set
+  assert_not_nil TestClass.find(object.id).number
 
 === Mass-assignment
 
