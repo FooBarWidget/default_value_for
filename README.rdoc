@@ -153,6 +153,10 @@ then it will be filled in:
   
   user = User.new(:name => "Jane")
   user.name   # => "Joe"
+  
+  # the without protection option will work as expected
+  user = User.new({:name => "Jane"}, :without_protection => true)
+  user.name   # => "Jane"
 
 Explicitly set nil values will be overwritten by declared values, consider this example:
 
