@@ -261,6 +261,16 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 987, object.count
 	end
 
+  def test_constructor_respects_without_protection_option
+    define_model_class do
+      default_value_for :number, 1234
+      attr_protected :number
+    end
+    object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
+    assert_equal 5678, object.number
+    assert_equal 987, object.count
+  end
+
 	def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
 		define_model_class do
 			def initialize(attrs = {})
