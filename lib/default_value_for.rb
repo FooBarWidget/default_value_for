@@ -94,7 +94,9 @@ module DefaultValueFor
 			initialize_without_defaults(attrs, options, &block)
 			if attrs
 				stringified_attrs = attrs.stringify_keys
-				safe_attrs = if respond_to? :sanitize_for_mass_assignment
+				safe_attrs = if options[:without_protection]
+					stringified_attrs
+				elsif respond_to? :sanitize_for_mass_assignment
 					sanitize_for_mass_assignment(stringified_attrs)
 				else
 					remove_attributes_protected_from_mass_assignment(stringified_attrs)
