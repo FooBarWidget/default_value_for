@@ -258,7 +258,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 
 	def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
 		define_model_class do
-			def initialize(attrs = {})
+			def initialize(attrs = {}, opts = {})
 				@initialized = true
 				super(:count => 5678)
 			end
@@ -366,5 +366,19 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		options_dup = options.dup
 		object = TestClass.new(options)
 		assert_equal(options_dup, options)
+	end
+
+	def test_initialization_without_protection
+		define_model_class do
+		  attr_accessor :protected
+		  attr_protected :protected
+		  default_value_for :protected, 5
+		end
+
+		object = TestClass.new(:protected => 10)
+		assert_equal(object.protected, 5)
+
+		object = TestClass.new({ :protected => 10 }, :without_protection => true)
+		assert_equal(object.protected, 10)
 	end
 end
