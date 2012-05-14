@@ -111,13 +111,27 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		define_model_class do
 			default_value_for :number, 1234
 		end
+		
 		object = TestClass.create
 		assert_not_nil TestClass.find_by_number(1234)
 		
-		# works with existing record data which have changed outside the application / plain sql
+		# allows nil for existing records
 		object.update_attribute(:number, nil)
 		assert_nil TestClass.find_by_number(1234)
-		assert_not_nil TestClass.find(object.id).number
+		assert_nil TestClass.find(object.id).number
+	end
+
+	def test_does_not_allow_nil_for_existing_record
+    define_model_class do
+      default_value_for(:number, :allows_nil => false) { 1234 }
+    end
+    
+    object = TestClass.create
+    
+    # allows nil for existing records
+    object.update_attribute(:number, nil)
+    assert_nil TestClass.find_by_number(1234)
+    assert_equal 1234, TestClass.find(object.id).number
 	end
 
  	def test_overwrites_db_default
@@ -156,9 +170,17 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		assert_equal 1, object.number
 	end
 
+  def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment
+    define_model_class do
+      default_value_for :number, 1234
+    end
+    object = TestClass.new(:number => nil)
+    assert_equal nil, object.number
+  end
+
 	def test_overwrites_explicitly_provided_nil_values_in_mass_assignment
 		define_model_class do
-			default_value_for :number, 1234
+			default_value_for :number, :value => 1234, :allows_nil => false
 		end
 		object = TestClass.new(:number => nil)
 		assert_equal 1234, object.number
@@ -265,10 +287,18 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
       attr_protected :number
+      
+      def respond_to_mass_assignment_options?
+        respond_to? :mass_assignment_options
+      end
     end
-    object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
-    assert_equal 5678, object.number
-    assert_equal 987, object.count
+    
+    if TestClass.new.respond_to_mass_assignment_options?
+      # test without protection feature if available in current ActiveRecord version
+      object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
+      assert_equal 5678, object.number
+      assert_equal 987, object.count
+    end
   end
 
 	def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
@@ -371,7 +401,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 		user2 = TestClass.new
 		assert_equal([1], user2.hash[1])
 	end
-
+	
 	def test_constructor_does_not_affect_the_hash_passed_to_it
 		define_model_class do
 			default_value_for :count, 5
