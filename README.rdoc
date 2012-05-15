@@ -323,7 +323,7 @@ Also, stick with the following rules:
 
 If your default value is accidentally similar to default_value_for's options hash wrap your default value like this:
 
-  default_value_for :attribute_name, :value => { { :value => 123, :other_value => 1234 } }
+  default_value_for :attribute_name, :value => { :value => 123, :other_value => 1234 }
 
 == When (not) to use default_value_for?
 
