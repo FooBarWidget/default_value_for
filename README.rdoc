@@ -84,6 +84,20 @@ whatever reason:
       UuidGenerator.new.generate_uuid
     end
   end
+  
+== default_value_for options
+
+* allows_nil (default: true) - Sets explicitly passed nil values if option is set to true.
+ 
+You can pass this options hash as 2nd parameter and have to pass the default value through the :value option in this case e.g.:
+
+  default_value_for :age, :value => 20, :allows_nil => false 
+ 
+You can still pass the default value through a block:
+  
+  default_value_for :uuid, :allows_nil => false do
+    UuidGenerator.new.generate_uuid
+  end
 
 == The default_values method
 
@@ -91,6 +105,11 @@ As a shortcut, you can use +default_values+ to set multiple default values at on
 
   default_values :age  => 20,
                  :uuid => lambda { UuidGenerator.new.generate_uuid }
+
+If you like to override default_value_for options for each attribute you can do so:
+
+  default_values :age  => { :value => 20 },
+                 :uuid => { :value => lambda { UuidGenerator.new.generate_uuid }, :allows_nil => false }
 
 The difference is purely aesthetic.  If you have lots of default values which are constants or constructed with one-line blocks, +default_values+ may look nicer.  If you have default values constructed by longer blocks, +default_value_for+ suit you better.  Feel free to mix and match.
 
@@ -103,7 +122,7 @@ because it will not parse. One needs to write
   default_value_for(:uuid) { UuidGenerator.new.generate_uuid }
 
 instead. This is in part the inspiration for the +default_values+ syntax.
-
+ 
 == Rules
 
 === Instantiation of new record
@@ -113,7 +132,7 @@ the record. You've already seen this in the above examples.
 
 === Retrieval of existing record
 
-Upon retrieving an existing record, the declared default values are _not_
+Upon retrieving an existing record in the following case, the declared default values are _not_
 filled into the record. Consider the example with the UUID:
 
   user = User.create
@@ -122,6 +141,19 @@ filled into the record. Consider the example with the UUID:
   user = User.find(user.id)
   # UUID remains unchanged because it's retrieved from the database!
   user.uuid   # => "529c91b8bbd3e..."
+
+But when the declared default value is set to not allow nil and nil is passed the default values will be set on retrieval.
+Consider this example:
+
+  default_value_for(:number, :allows_nil => false) { 123 }
+
+  user = User.create
+  
+  # manual SQL by-passing active record and the default value for gem logic through ActiveRecord's after_initialize callback
+  user.update_attribute(:number, nil)
+  
+  # declared default value should be set
+  User.find(user.id).number # => 123 # = declared default value
 
 === Mass-assignment
 
@@ -142,6 +174,28 @@ then it will be filled in:
   
   user = User.new(:name => "Jane")
   user.name   # => "Joe"
+  
+  # the without protection option will work as expected
+  user = User.new({:name => "Jane"}, :without_protection => true)
+  user.name   # => "Jane"
+
+Explicitly set nil values for accessible attributes will be accepted:
+
+  class User < ActiveRecord::Base
+    default_value_for :name, 'Joe'
+  end
+
+  user = User(:name => nil)
+  user.name # => nil
+
+... unless the accessible attribute is set to not allowing nil:
+
+  class User < ActiveRecord::Base
+    default_value_for :name, 'Joe', :allows_nil => false
+  end
+
+  user = User(:name => nil)
+  user.name # => "Joe"
 
 === Inheritance
 
@@ -267,6 +321,9 @@ Also, stick with the following rules:
 - Make sure that +alias_method_chain+ is called *after* the last
   +default_value_for+ occurance.
 
+If your default value is accidentally similar to default_value_for's options hash wrap your default value like this:
+
+  default_value_for :attribute_name, :value => { :value => 123, :other_value => 1234 }
 
 == When (not) to use default_value_for?
 

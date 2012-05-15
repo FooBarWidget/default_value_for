@@ -19,104 +19,140 @@
 # THE SOFTWARE.
 
 module DefaultValueFor
-	class NormalValueContainer
-		def initialize(value)
-			@value = value
-		end
+  class NormalValueContainer
+    def initialize(value)
+      @value = value
+    end
 
-		def evaluate(instance)
-			if @value.duplicable?
-				return @value.dup
-			else
-				return @value
-			end
-		end
-	end
+    def evaluate(instance)
+      if @value.duplicable?
+        return @value.dup
+      else
+        return @value
+      end
+    end
+  end
 
-	class BlockValueContainer
-		def initialize(block)
-			@block = block
-		end
+  class BlockValueContainer
+    def initialize(block)
+      @block = block
+    end
 
-		def evaluate(instance)
-			if @block.arity == 0
-				return @block.call
-			else
-				return @block.call(instance)
-			end
-		end
-	end
+    def evaluate(instance)
+      if @block.arity == 0
+        return @block.call
+      else
+        return @block.call(instance)
+      end
+    end
+  end
 
-	module ClassMethods
-		def default_value_for(attribute, value = nil, &block)
-			if !method_defined?(:initialize_with_defaults)
-				include(InstanceMethods)
-				alias_method_chain :initialize, :defaults
-				if respond_to?(:class_attribute)
-					class_attribute :_default_attribute_values
-				else
-					class_inheritable_accessor :_default_attribute_values
-				end
-				extend(DelayedClassMethods)
-				init_hash = true
-			end
-			if init_hash || !singleton_methods(false).to_s.include?("_default_attribute_values")
-				self._default_attribute_values = ActiveSupport::OrderedHash.new
-			end
-			if block_given?
-				container = BlockValueContainer.new(block)
-			else
-				container = NormalValueContainer.new(value)
-			end
-			_default_attribute_values[attribute.to_s] = container
-		end
+  module ClassMethods
+    # Declares a default value for the given attribute.
+    #
+    # Sets the default value to the given options parameter unless the given options equal { :value => ... }
+    #
+    # The <tt>options</tt> can be used to specify the following things:
+    # * <tt>value</tt> - Sets the default value.
+    # * <tt>allows_nil (default: true)</tt> - Sets explicitly passed nil values if option is set to true.
+    def default_value_for(attribute, options = {}, &block)
+      value = options.is_a?(Hash) && options.stringify_keys.has_key?('value') ? options.stringify_keys['value'] : options
+      allows_nil = options.is_a?(Hash) && options.stringify_keys.has_key?('allows_nil') ? options.stringify_keys['allows_nil'] : true
+      
+      if !method_defined?(:set_default_values)
+        include(InstanceMethods)
 
-		def default_values(values)
-			values.each_pair do |key, value|
-				if value.kind_of? Proc
-					default_value_for(key, &value)
-				else
-					default_value_for(key, value)
-				end
-			end
-		end
-	end
+        after_initialize :set_default_values
+        
+        if respond_to?(:class_attribute)
+          class_attribute :_default_attribute_values
+          class_attribute :_default_attribute_values_not_allowing_nil
+        else
+          class_inheritable_accessor :_default_attribute_values
+          class_inheritable_accessor :_default_attribute_values_not_allowing_nil
+        end
+        
+        extend(DelayedClassMethods)
+        init_hash = true
+      end
+      if init_hash || !singleton_methods(false).to_s.include?("_default_attribute_values")
+        self._default_attribute_values = ActiveSupport::OrderedHash.new
+        self._default_attribute_values_not_allowing_nil = []
+      end
+      if block_given?
+        container = BlockValueContainer.new(block)
+      else
+        container = NormalValueContainer.new(value)
+      end
+      _default_attribute_values[attribute.to_s] = container
+      _default_attribute_values_not_allowing_nil << attribute.to_s unless allows_nil
+    end
 
-	module DelayedClassMethods
-		def _all_default_attribute_values
-			return _default_attribute_values unless superclass.respond_to?(:_default_attribute_values)
-			superclass._all_default_attribute_values.merge(_default_attribute_values)
-		end
-	end
+    def default_values(values)
+      values.each_pair do |key, options|
+        options = options.stringify_keys if options.is_a?(Hash)
+        
+        value = options.is_a?(Hash) && options.has_key?('value') ? options['value'] : options
+        
+        if value.kind_of? Proc
+          default_value_for(key, options.is_a?(Hash) ? options : {}, &value)
+        else
+          default_value_for(key, options)
+        end
+      end
+    end
+  end
 
-	module InstanceMethods
-		def initialize_with_defaults(attrs = nil, *args, &block)
-			initialize_without_defaults(attrs, *args, &block)
-			if attrs
-				stringified_attrs = attrs.stringify_keys
-				safe_attrs = if respond_to? :sanitize_for_mass_assignment
-					sanitize_for_mass_assignment(stringified_attrs)
-				else
-					remove_attributes_protected_from_mass_assignment(stringified_attrs)
-				end
-				safe_attribute_names = safe_attrs.keys.map do |x|
-					x.to_s
-				end
-			end
-			self.class._all_default_attribute_values.each do |attribute, container|
-				if safe_attribute_names.nil? || !safe_attribute_names.any? { |attr_name| attr_name =~ /^#{attribute}($|\()/ }
-					__send__("#{attribute}=", container.evaluate(self))
-					changed_attributes.delete(attribute)
-				end
-			end
-			yield(self) if block_given?
-		end
-	end
+  module DelayedClassMethods
+    def _all_default_attribute_values
+      return _default_attribute_values unless superclass.respond_to?(:_default_attribute_values)
+      superclass._all_default_attribute_values.merge(_default_attribute_values)
+    end
+    
+    def _all_default_attribute_values_not_allowing_nil
+      return _default_attribute_values_not_allowing_nil unless superclass.respond_to?(:_default_attribute_values_not_allowing_nil)
+      superclass._all_default_attribute_values_not_allowing_nil.merge(_default_attribute_values_not_allowing_nil)
+    end
+  end
+
+  module InstanceMethods
+    def initialize(attributes = nil, options = {})
+      @initialization_attributes = attributes.is_a?(Hash) ? attributes.stringify_keys : {}
+      
+      unless options[:without_protection]
+        if respond_to?(:mass_assignment_options) && options.has_key?(:as)
+          @initialization_attributes = sanitize_for_mass_assignment(@initialization_attributes, options[:as])
+        elsif respond_to? :sanitize_for_mass_assignment
+          @initialization_attributes = sanitize_for_mass_assignment(@initialization_attributes)
+        else
+          @initialization_attributes = remove_attributes_protected_from_mass_assignment(@initialization_attributes)
+        end
+      end
+      
+      super(attributes, options)
+    end
+    
+    def set_default_values
+      self.class._all_default_attribute_values.each do |attribute, container|
+        next unless self.new_record? || self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
+        
+        connection_default_value_defined = new_record? && respond_to?("#{attribute}_changed?") && !__send__("#{attribute}_changed?")
+        
+        next unless connection_default_value_defined || self.attributes[attribute].blank?
+        
+        # allow explicitly setting nil through allow nil option
+        next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
+        
+        __send__("#{attribute}=", container.evaluate(self))
+        changed_attributes.delete(attribute)
+      end
+    end
+  end
 end
 
 if defined?(Rails::Railtie)
-	require 'default_value_for/railtie'
+  require 'default_value_for/railtie'
 else
-	# Rails 2 initialization
-	ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
+  # Rails 2 initialization
+  ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
 end
