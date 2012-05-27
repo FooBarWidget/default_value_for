@@ -20,21 +20,18 @@ section. Please read on.
 
 == Installation
 
-=== Rails 2
-
-Install with:
-
-  ./script/plugin install git://github.com/FooBarWidget/default_value_for.git
-
 === Rails 3
 
-You can either install it as a plugin:
-
-  rails plugin install git://github.com/FooBarWidget/default_value_for.git
-
-or install it by adding it to your Gemfile:
+Add it to your Gemfile:
 
   gem "default_value_for"
+
+=== Rails 2
+
+default_value_for no longer supports Rails 2! The last version that supported Rails
+2 is version 1.0.7. Install that with:
+
+  ./script/plugin install git://github.com/FooBarWidget/default_value_for.git -r release-1.0.7
 
 
 == The default_value_for method
