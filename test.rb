@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-want_rails_version = '~> 3.1.0'
+want_rails_version = '~> ' + ENV.fetch('WANT_RAILS_VERSION', '3.2.0')
 
 require 'rubygems'
 gem 'rails', want_rails_version
@@ -86,7 +86,11 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     eval("class #{name} < #{parent_class_name}; end", TOPLEVEL_BINDING)
     klass = eval(name, TOPLEVEL_BINDING)
     klass.class_eval do
-      set_table_name 'numbers'
+      if respond_to?(:table_name=)
+        self.table_name = 'numbers'
+      else
+        set_table_name 'numbers'
+      end
     end
     klass.class_eval(&block) if block_given?
   end
@@ -381,7 +385,11 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 
   def test_default_values_are_duplicated
     define_model_class do
-      set_table_name "users"
+      if respond_to?(:table_name=)
+        self.table_name = "users"
+      else
+        set_table_name "users"
+      end
       default_value_for :username, "hello"
     end
     user1 = TestClass.new
@@ -392,7 +400,11 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 
   def test_default_values_are_shallow_copied
     define_model_class do
-      set_table_name "users"
+      if respond_to?(:table_name=)
+        self.table_name = "users"
+      else
+        set_table_name "users"
+      end
       attr_accessor :hash
       default_value_for :hash, { 1 => [] }
     end
