@@ -122,7 +122,7 @@ module DefaultValueFor
       unless options[:without_protection]
         if respond_to?(:mass_assignment_options) && options.has_key?(:as)
           @initialization_attributes = sanitize_for_mass_assignment(@initialization_attributes, options[:as])
-        elsif respond_to? :sanitize_for_mass_assignment
+        elsif respond_to?(:sanitize_for_mass_assignment)
           @initialization_attributes = sanitize_for_mass_assignment(@initialization_attributes)
         else
           @initialization_attributes = remove_attributes_protected_from_mass_assignment(@initialization_attributes)
