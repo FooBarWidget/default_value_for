@@ -1,4 +1,4 @@
-# Copyright (c) 2008, 2009, 2010, 2011 Phusion
+# Copyright (c) 2008-2012 Phusion
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -129,7 +129,11 @@ module DefaultValueFor
         end
       end
       
-      super(attributes, options)
+      if ActiveRecord::VERSION::MAJOR > 3 || (ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR > 0)
+        super(attributes, options)
+      else
+        super(attributes)
+      end
     end
     
     def set_default_values
