@@ -431,6 +431,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     end
     define_model_class("SpecialNumber", "TestClass")
     n = SpecialNumber.create
-    SpecialNumber.find(n.id)
+    assert_nothing_raised { SpecialNumber.find(n.id) }
   end
 end
