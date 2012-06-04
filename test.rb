@@ -424,4 +424,13 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     object = TestClass.new(options)
     assert_equal(options_dup, options)
   end
+
+  def test_subclass_find
+    define_model_class do
+      default_value_for :number, 5678
+    end
+    define_model_class("SpecialNumber", "TestClass")
+    n = SpecialNumber.create
+    SpecialNumber.find(n.id)
+  end
 end

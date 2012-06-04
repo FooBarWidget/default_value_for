@@ -74,8 +74,11 @@ module DefaultValueFor
         
         extend(DelayedClassMethods)
         init_hash = true
+      else
+        methods = singleton_methods(false)
+        init_hash = !methods.include?("_default_attribute_values") && !methods.include?(:_default_attribute_values)
       end
-      if init_hash || !singleton_methods(false).to_s.include?("_default_attribute_values")
+      if init_hash
         self._default_attribute_values = ActiveSupport::OrderedHash.new
         self._default_attribute_values_not_allowing_nil = []
       end
@@ -111,7 +114,9 @@ module DefaultValueFor
     
     def _all_default_attribute_values_not_allowing_nil
       return _default_attribute_values_not_allowing_nil unless superclass.respond_to?(:_default_attribute_values_not_allowing_nil)
-      superclass._all_default_attribute_values_not_allowing_nil.merge(_default_attribute_values_not_allowing_nil)
+      result = superclass._all_default_attribute_values_not_allowing_nil.concat(_default_attribute_values_not_allowing_nil)
+      result.uniq!
+      result
     end
   end
 
