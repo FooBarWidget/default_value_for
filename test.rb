@@ -55,6 +55,7 @@ end
 ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
   t.string :type
   t.integer :number
+  t.boolean :flag
   t.integer :count, :null => false, :default => 1
   t.integer :user_id
   t.timestamp :timestamp
@@ -138,7 +139,19 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     assert_equal 1234, TestClass.find(object.id).number
   end
 
-   def test_overwrites_db_default
+  def test_does_not_see_false_as_blank_at_boolean_columns_for_existing_records
+    define_model_class do
+      default_value_for(:flag, :allows_nil => false) { true }
+    end
+    
+    object = TestClass.create
+    
+    # allows nil for existing records
+    object.update_attribute(:flag, false)
+    assert_equal false, TestClass.find(object.id).flag
+  end
+
+  def test_overwrites_db_default
     define_model_class do
       default_value_for :count, 1234
     end
