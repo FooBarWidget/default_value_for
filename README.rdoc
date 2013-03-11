@@ -26,6 +26,10 @@ Add it to your Gemfile:
 
   gem "default_value_for"
 
+This gem is signed using PGP with the Phusion Software Signing key: http://www.phusion.nl/about/gpg. That key in turn is signed by the rubygems-openpgp Certificate Authority: http://www.rubygems-openpgp-ca.org/.
+
+You can verify the authenticity of the gem by following The Complete Guide to Verifying Gems with rubygems-openpgp: http://www.rubygems-openpgp-ca.org/blog/the-complete-guide-to-verifying-gems-with-rubygems-openpgp.html
+
 === Rails 2
 
 default_value_for no longer supports Rails 2! The last version that supported Rails
