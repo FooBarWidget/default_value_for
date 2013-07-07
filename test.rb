@@ -155,6 +155,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
   end
 
   def test_doesnt_overwrite_values_provided_by_multiparameter_assignment
+    ActiveRecord::Base.default_timezone = :utc
     define_model_class do
       default_value_for :timestamp, Time.new(2000, 1, 1, 0, 0, 0, '+00:00')
     end
@@ -277,6 +278,38 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     assert_equal 'hi', object.hello
   end
 
+  def test_constructor_ignores_forbidden_mass_assignment_attributes
+    if ActiveRecord::VERSION::MAJOR < 4
+      define_model_class do
+        default_value_for :number, 1234
+        attr_protected :number
+      end
+      object = TestClass.new(:number => 5678, :count => 987)
+      assert_equal 1234, object.number
+      assert_equal 987, object.count
+    end
+  end
+
+  def test_constructor_respects_without_protection_option
+    if ActiveRecord::VERSION::MAJOR < 4
+      define_model_class do
+        default_value_for :number, 1234
+        attr_protected :number
+
+        def respond_to_mass_assignment_options?
+          respond_to? :mass_assignment_options
+        end
+      end
+
+      if TestClass.new.respond_to_mass_assignment_options?
+        # test without protection feature if available in current ActiveRecord version
+        object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
+        assert_equal 5678, object.number
+        assert_equal 987, object.count
+      end
+    end
+  end
+
   def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
     define_model_class do
       def initialize(attrs = {})
@@ -385,7 +418,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     user2 = TestClass.new
     assert_equal([1], user2.hash[1])
   end
-  
+
   def test_constructor_does_not_affect_the_hash_passed_to_it
     define_model_class do
       default_value_for :count, 5
