@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-want_rails_version = '~> ' + ENV.fetch('WANT_RAILS_VERSION', '3.2.0')
+want_rails_version = '~> ' + ENV.fetch('WANT_RAILS_VERSION', '4.0.0')
 
 require 'rubygems'
 gem 'rails', want_rails_version
@@ -156,9 +156,9 @@ class DefaultValuePluginTest < Test::Unit::TestCase
 
   def test_doesnt_overwrite_values_provided_by_multiparameter_assignment
     define_model_class do
-      default_value_for :timestamp, Time.mktime(2000, 1, 1)
+      default_value_for :timestamp, Time.new(2000, 1, 1, 0, 0, 0, '+00:00')
     end
-    timestamp = Time.mktime(2009, 1, 1)
+    timestamp = Time.new(2009, 1, 1, 0, 0, 0, '+00:00')
     object = TestClass.new('timestamp(1i)' => '2009', 'timestamp(2i)' => '1', 'timestamp(3i)' => '1')
     assert_equal timestamp, object.timestamp
   end
@@ -265,7 +265,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
     end
-    assert_equal 9876, TestClass.find(:first).number
+    assert_equal 9876, TestClass.first.number
   end
 
   def test_also_works_on_attributes_that_arent_database_columns
@@ -275,34 +275,6 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     end
     object = TestClass.new
     assert_equal 'hi', object.hello
-  end
-
-  def test_constructor_ignores_forbidden_mass_assignment_attributes
-    define_model_class do
-      default_value_for :number, 1234
-      attr_protected :number
-    end
-    object = TestClass.new(:number => 5678, :count => 987)
-    assert_equal 1234, object.number
-    assert_equal 987, object.count
-  end
-
-  def test_constructor_respects_without_protection_option
-    define_model_class do
-      default_value_for :number, 1234
-      attr_protected :number
-      
-      def respond_to_mass_assignment_options?
-        respond_to? :mass_assignment_options
-      end
-    end
-    
-    if TestClass.new.respond_to_mass_assignment_options?
-      # test without protection feature if available in current ActiveRecord version
-      object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
-      assert_equal 5678, object.number
-      assert_equal 987, object.count
-    end
   end
 
   def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
@@ -375,12 +347,12 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     end
 
     object = TestClass.new
-    assert(!object.changed?)
-    assert_equal([], object.changed)
+    assert(object.changed?)
+    assert_equal(["count", "number"], object.changed)
 
     object.type = "foo"
     assert(object.changed?)
-    assert_equal(["type"], object.changed)
+    assert_equal(["count", "number", "type"], object.changed)
   end
 
   def test_default_values_are_duplicated
