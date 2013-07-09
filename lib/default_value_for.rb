@@ -134,7 +134,7 @@ module DefaultValueFor
         end
       end
 
-      if ActiveRecord::VERSION::MAJOR > 3 || (ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR > 0)
+      if ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR > 0
         super(attributes, options)
       else
         super(attributes)
@@ -153,7 +153,6 @@ module DefaultValueFor
         next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
         __send__("#{attribute}=", container.evaluate(self))
-        changed_attributes.delete(attribute)
       end
     end
   end
