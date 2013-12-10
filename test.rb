@@ -31,7 +31,7 @@ if RUBY_PLATFORM == "java"
 else
   database_adapter = "sqlite3"
 end
-
+ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDERR)
 ActiveRecord::Base.logger.level = Logger::WARN
 ActiveRecord::Base.establish_connection(
