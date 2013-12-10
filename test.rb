@@ -18,22 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-want_rails_version = '~> ' + ENV.fetch('WANT_RAILS_VERSION', '3.2.0')
-
 require 'rubygems'
-gem 'rails', want_rails_version
-gem 'activerecord', want_rails_version
-begin
-  require 'rails/railtie'
-rescue LoadError
-end
+require 'bundler/setup'
 require 'active_record'
 require 'test/unit'
 require 'active_support/dependencies'
 require 'active_support/core_ext/logger'
-$LOAD_PATH.unshift File.expand_path("lib", File.dirname(__FILE__))
 require 'default_value_for'
-Dir.chdir(File.dirname(__FILE__))
 
 if RUBY_PLATFORM == "java"
   database_adapter = "jdbcsqlite3"
@@ -41,12 +32,11 @@ else
   database_adapter = "sqlite3"
 end
 
-File.unlink('test.sqlite3') rescue nil
 ActiveRecord::Base.logger = Logger.new(STDERR)
 ActiveRecord::Base.logger.level = Logger::WARN
 ActiveRecord::Base.establish_connection(
-  :adapter => database_adapter,
-  :database => 'test.sqlite3'
+  :adapter  => database_adapter,
+  :database => ':memory:'
 )
 ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
   t.string :username
@@ -115,10 +105,10 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
     end
-    
+
     object = TestClass.create
     assert_not_nil TestClass.find_by_number(1234)
-    
+
     # allows nil for existing records
     object.update_attribute(:number, nil)
     assert_nil TestClass.find_by_number(1234)
@@ -129,9 +119,9 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for(:number, :allows_nil => false) { 1234 }
     end
-    
+
     object = TestClass.create
-    
+
     # allows nil for existing records
     object.update_attribute(:number, nil)
     assert_nil TestClass.find_by_number(1234)
@@ -291,12 +281,12 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
       attr_protected :number
-      
+
       def respond_to_mass_assignment_options?
         respond_to? :mass_assignment_options
       end
     end
-    
+
     if TestClass.new.respond_to_mass_assignment_options?
       # test without protection feature if available in current ActiveRecord version
       object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
@@ -413,7 +403,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     user2 = TestClass.new
     assert_equal([1], user2.hash[1])
   end
-  
+
   def test_constructor_does_not_affect_the_hash_passed_to_it
     define_model_class do
       default_value_for :count, 5
