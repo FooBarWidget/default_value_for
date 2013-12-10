@@ -30,6 +30,8 @@ end
 
 require 'default_value_for'
 
+puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}\n\n"
+
 if RUBY_PLATFORM == "java"
   database_adapter = "jdbcsqlite3"
 else
