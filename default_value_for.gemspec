@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{https://github.com/FooBarWidget/default_value_for}
   s.authors = ["Hongli Lai"]
   s.files = ['default_value_for.gemspec',
-    'LICENSE.TXT', 'Rakefile', 'README.rdoc', 'test.rb',
+    'LICENSE.TXT', 'Rakefile', 'README.md', 'test.rb',
     'init.rb',
     'lib/default_value_for.rb',
     'lib/default_value_for/railtie.rb'
