@@ -271,31 +271,33 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     assert_equal 'hi', object.hello
   end
 
-  def test_constructor_ignores_forbidden_mass_assignment_attributes
-    define_model_class do
-      default_value_for :number, 1234
-      attr_protected :number
-    end
-    object = TestClass.new(:number => 5678, :count => 987)
-    assert_equal 1234, object.number
-    assert_equal 987, object.count
-  end
-
-  def test_constructor_respects_without_protection_option
-    define_model_class do
-      default_value_for :number, 1234
-      attr_protected :number
-
-      def respond_to_mass_assignment_options?
-        respond_to? :mass_assignment_options
+  if ActiveRecord::VERSION::MAJOR < 4
+    def test_constructor_ignores_forbidden_mass_assignment_attributes
+      define_model_class do
+        default_value_for :number, 1234
+        attr_protected :number
       end
+      object = TestClass.new(:number => 5678, :count => 987)
+      assert_equal 1234, object.number
+      assert_equal 987, object.count
     end
 
-    if TestClass.new.respond_to_mass_assignment_options?
-      # test without protection feature if available in current ActiveRecord version
-      object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
-      assert_equal 5678, object.number
-      assert_equal 987, object.count
+    def test_constructor_respects_without_protection_option
+      define_model_class do
+        default_value_for :number, 1234
+        attr_protected :number
+
+        def respond_to_mass_assignment_options?
+          respond_to? :mass_assignment_options
+        end
+      end
+
+      if TestClass.new.respond_to_mass_assignment_options?
+        # test without protection feature if available in current ActiveRecord version
+        object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
+        assert_equal 5678, object.number
+        assert_equal 987, object.count
+      end
     end
   end
 
