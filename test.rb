@@ -255,7 +255,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
     end
-    assert_equal 9876, TestClass.find(:first).number
+    assert_equal 9876, TestClass.first.number
   end
 
   def test_also_works_on_attributes_that_arent_database_columns
