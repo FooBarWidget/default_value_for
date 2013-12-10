@@ -20,15 +20,22 @@ section. Please read on.
 
 == Installation
 
-=== Rails 3
+=== Rails 3.2 and higher
 
 Add it to your Gemfile:
 
-  gem "default_value_for"
+  gem "default_value_for", "~> 3.0.0"
 
 This gem is signed using PGP with the Phusion Software Signing key: http://www.phusion.nl/about/gpg. That key in turn is signed by the rubygems-openpgp Certificate Authority: http://www.rubygems-openpgp-ca.org/.
 
 You can verify the authenticity of the gem by following The Complete Guide to Verifying Gems with rubygems-openpgp: http://www.rubygems-openpgp-ca.org/blog/the-complete-guide-to-verifying-gems-with-rubygems-openpgp.html
+
+== Rails 3.0 and 3.1
+
+default_value_for no longer supports Rails 3.0 or 3.1! The last version that supported these version of rails
+is version 2.0.3. Install that with:
+
+  gem "default_value_for", "~> 2.0.3"
 
 === Rails 2
 
@@ -85,17 +92,17 @@ whatever reason:
       UuidGenerator.new.generate_uuid
     end
   end
-  
+
 == default_value_for options
 
 * allows_nil (default: true) - Sets explicitly passed nil values if option is set to true.
- 
+
 You can pass this options hash as 2nd parameter and have to pass the default value through the :value option in this case e.g.:
 
-  default_value_for :age, :value => 20, :allows_nil => false 
- 
+  default_value_for :age, :value => 20, :allows_nil => false
+
 You can still pass the default value through a block:
-  
+
   default_value_for :uuid, :allows_nil => false do
     UuidGenerator.new.generate_uuid
   end
