@@ -23,7 +23,11 @@ require 'bundler/setup'
 require 'active_record'
 require 'test/unit'
 require 'active_support/dependencies'
-require 'active_support/core_ext/logger'
+
+if ActiveSupport::VERSION::MAJOR < 4
+  require 'active_support/core_ext/logger'
+end
+
 require 'default_value_for'
 
 if RUBY_PLATFORM == "java"
