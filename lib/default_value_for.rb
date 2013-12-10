@@ -141,6 +141,11 @@ module DefaultValueFor
       end
     end
 
+    def attributes_for_create(attribute_names)
+      attribute_names += self._default_attribute_values.keys.map(&:to_s)
+      super
+    end
+
     def set_default_values
       self.class._all_default_attribute_values.each do |attribute, container|
         next unless self.new_record? || self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
