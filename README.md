@@ -107,13 +107,17 @@ end
 
 You can pass this options hash as 2nd parameter and have to pass the default value through the :value option in this case e.g.:
 
-  default_value_for :age, :value => 20, :allows_nil => false
+```ruby
+default_value_for :age, :value => 20, :allows_nil => false
+```
 
 You can still pass the default value through a block:
 
-  default_value_for :uuid, :allows_nil => false do
-    UuidGenerator.new.generate_uuid
-  end
+```ruby
+default_value_for :uuid, :allows_nil => false do
+  UuidGenerator.new.generate_uuid
+end
+````
 
 ## The default_values method
 
