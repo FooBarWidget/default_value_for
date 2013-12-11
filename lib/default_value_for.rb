@@ -76,13 +76,14 @@ module DefaultValueFor
         extend(DelayedClassMethods)
         init_hash = true
       else
-        methods = singleton_methods(false)
-        init_hash = !methods.include?("_default_attribute_values") && !methods.include?(:_default_attribute_values)
+        init_hash = !singleton_methods(false).include?(:_default_attribute_values)
       end
+
       if init_hash
         self._default_attribute_values = {}
         self._default_attribute_values_not_allowing_nil = []
       end
+
       if block_given?
         container = BlockValueContainer.new(block)
       else
