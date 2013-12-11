@@ -70,13 +70,8 @@ module DefaultValueFor
 
         after_initialize :set_default_values
 
-        if respond_to?(:class_attribute)
-          class_attribute :_default_attribute_values
-          class_attribute :_default_attribute_values_not_allowing_nil
-        else
-          class_inheritable_accessor :_default_attribute_values
-          class_inheritable_accessor :_default_attribute_values_not_allowing_nil
-        end
+        class_attribute :_default_attribute_values
+        class_attribute :_default_attribute_values_not_allowing_nil
 
         extend(DelayedClassMethods)
         init_hash = true
