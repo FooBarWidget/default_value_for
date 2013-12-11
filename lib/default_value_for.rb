@@ -136,7 +136,7 @@ module DefaultValueFor
         end
       end
 
-      if ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR > 0
+      if ActiveRecord::VERSION::MAJOR < 4
         super(attributes, options)
       else
         super(attributes)
