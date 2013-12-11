@@ -79,7 +79,7 @@ module DefaultValueFor
         init_hash = !methods.include?("_default_attribute_values") && !methods.include?(:_default_attribute_values)
       end
       if init_hash
-        self._default_attribute_values = ActiveSupport::OrderedHash.new
+        self._default_attribute_values = {}
         self._default_attribute_values_not_allowing_nil = []
       end
       if block_given?
