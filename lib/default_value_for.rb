@@ -152,7 +152,13 @@ module DefaultValueFor
 
         connection_default_value_defined = new_record? && respond_to?("#{attribute}_changed?") && !__send__("#{attribute}_changed?")
 
-        next unless connection_default_value_defined || self.attributes[attribute].blank?
+        column = self.class.columns.detect {|c| c.name == attribute}
+        attribute_blank = if column && column.type == :boolean
+          attributes[attribute].nil?
+        else
+          attributes[attribute].blank?
+        end
+        next unless connection_default_value_defined || attribute_blank
 
         # allow explicitly setting nil through allow nil option
         next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
