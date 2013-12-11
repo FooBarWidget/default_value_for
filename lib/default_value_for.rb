@@ -56,8 +56,14 @@ module DefaultValueFor
     # * <tt>value</tt> - Sets the default value.
     # * <tt>allows_nil (default: true)</tt> - Sets explicitly passed nil values if option is set to true.
     def default_value_for(attribute, options = {}, &block)
-      value = options.is_a?(Hash) && options.stringify_keys.has_key?('value') ? options.stringify_keys['value'] : options
-      allows_nil = options.is_a?(Hash) && options.stringify_keys.has_key?('allows_nil') ? options.stringify_keys['allows_nil'] : true
+      value      = options
+      allows_nil = true
+
+      if options.is_a?(Hash)
+        opts       = options.stringify_keys
+        value      = opts.fetch('value', options)
+        allows_nil = opts.fetch('allows_nil', true)
+      end
 
       if !method_defined?(:set_default_values)
         include(InstanceMethods)
