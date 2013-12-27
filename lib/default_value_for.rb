@@ -136,7 +136,7 @@ module DefaultValueFor
         end
       end
 
-      if ActiveRecord::VERSION::MAJOR < 4
+      if self.class.respond_to? :protected_attributes
         super(attributes, options)
       else
         super(attributes)
