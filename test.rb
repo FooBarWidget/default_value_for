@@ -18,14 +18,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'rubygems'
 require 'bundler/setup'
+require 'minitest/autorun'
 require 'active_record'
-require 'test/unit'
 require 'active_support/dependencies'
 
 if ActiveSupport::VERSION::MAJOR < 4
   require 'active_support/core_ext/logger'
+end
+
+begin
+  TestCaseClass = MiniTest::Test
+rescue NameError
+  TestCaseClass = MiniTest::Unit::TestCase
 end
 
 require 'default_value_for'
@@ -69,7 +74,7 @@ end
 class Number < ActiveRecord::Base
 end
 
-class DefaultValuePluginTest < Test::Unit::TestCase
+class DefaultValuePluginTest < TestCaseClass
   def setup
     Number.create(:number => 9876)
   end
@@ -114,7 +119,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     end
 
     object = TestClass.create
-    assert_not_nil TestClass.find_by_number(1234)
+    refute_nil TestClass.find_by_number(1234)
 
     # allows nil for existing records
     object.update_attribute(:number, nil)
@@ -254,7 +259,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
       attr_accessor :hello
     end
 
-    assert_nothing_raised { TestSuperClass.new }
+    assert TestSuperClass.new
     assert !TestSuperClass._default_attribute_values.include?(:hello)
   end
 
@@ -430,7 +435,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     end
     define_model_class("SpecialNumber", "TestClass")
     n = SpecialNumber.create
-    assert_nothing_raised { SpecialNumber.find(n.id) }
+    assert SpecialNumber.find(n.id)
   end
 
   def test_does_not_see_false_as_blank_at_boolean_columns_for_existing_records

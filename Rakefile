@@ -5,16 +5,22 @@ task :test do
   ruby "test.rb"
 end
 
-namespace :test do
+['3.2', '4.0', '4.1'].each do |version|
+  dotless = version.delete('.')
 
-  task :rails32 do
-    ENV['BUNDLE_GEMFILE'] = 'Gemfile.rails.3.2.rb'
-    ruby "test.rb"
+  namespace :bundle do
+    desc "Bundle with Rails #{version}.x"
+    task :"rails#{dotless}" do
+      ENV['BUNDLE_GEMFILE'] = "Gemfile.rails.#{version}.rb"
+      sh "bundle"
+    end
   end
 
-  task :rails40 do
-    ENV['BUNDLE_GEMFILE'] = 'Gemfile.rails.4.0.rb'
-    ruby "test.rb"
+  namespace :test do
+    desc "Test with Rails #{version}.x"
+    task :"rails#{dotless}" do
+      ENV['BUNDLE_GEMFILE'] = "Gemfile.rails.#{version}.rb"
+      ruby "test.rb"
+    end
   end
-
 end
