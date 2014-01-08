@@ -552,3 +552,5 @@ I've taken my time to thoroughly document default_value_for's behavior.
 I've wanted such functionality for a while now and it baffled me that ActiveRecord doesn't provide a clean way for me to specify default values. After reading http://groups.google.com/group/rubyonrails-core/browse_thread/thread/b509a2fe2b62ac5/3e8243fa1954a935, it became clear that someone needs to write a plugin. This is the result.
 
 Thanks to Pratik Naik for providing the initial code snippet on which this plugin is based on: http://m.onkey.org/2007/7/24/how-to-set-default-values-in-your-model
+
+Thanks to Norman Clarke and Tom Mango for Rails 4 support.
