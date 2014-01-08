@@ -56,32 +56,34 @@ module DefaultValueFor
     # * <tt>value</tt> - Sets the default value.
     # * <tt>allows_nil (default: true)</tt> - Sets explicitly passed nil values if option is set to true.
     def default_value_for(attribute, options = {}, &block)
-      value = options.is_a?(Hash) && options.stringify_keys.has_key?('value') ? options.stringify_keys['value'] : options
-      allows_nil = options.is_a?(Hash) && options.stringify_keys.has_key?('allows_nil') ? options.stringify_keys['allows_nil'] : true
+      value      = options
+      allows_nil = true
+
+      if options.is_a?(Hash)
+        opts       = options.stringify_keys
+        value      = opts.fetch('value', options)
+        allows_nil = opts.fetch('allows_nil', true)
+      end
 
       if !method_defined?(:set_default_values)
         include(InstanceMethods)
 
         after_initialize :set_default_values
 
-        if respond_to?(:class_attribute)
-          class_attribute :_default_attribute_values
-          class_attribute :_default_attribute_values_not_allowing_nil
-        else
-          class_inheritable_accessor :_default_attribute_values
-          class_inheritable_accessor :_default_attribute_values_not_allowing_nil
-        end
+        class_attribute :_default_attribute_values
+        class_attribute :_default_attribute_values_not_allowing_nil
 
         extend(DelayedClassMethods)
         init_hash = true
       else
-        methods = singleton_methods(false)
-        init_hash = !methods.include?("_default_attribute_values") && !methods.include?(:_default_attribute_values)
+        init_hash = !singleton_methods(false).include?(:_default_attribute_values)
       end
+
       if init_hash
-        self._default_attribute_values = ActiveSupport::OrderedHash.new
+        self._default_attribute_values = {}
         self._default_attribute_values_not_allowing_nil = []
       end
+
       if block_given?
         container = BlockValueContainer.new(block)
       else
@@ -134,20 +136,31 @@ module DefaultValueFor
         end
       end
 
-      if ActiveRecord::VERSION::MAJOR > 3 || (ActiveRecord::VERSION::MAJOR == 3 && ActiveRecord::VERSION::MINOR > 0)
+      if self.class.respond_to? :protected_attributes
         super(attributes, options)
       else
         super(attributes)
       end
     end
 
+    def attributes_for_create(attribute_names)
+      attribute_names += _default_attribute_values.keys.map(&:to_s)
+      super
+    end
+
     def set_default_values
       self.class._all_default_attribute_values.each do |attribute, container|
-        next unless self.new_record? || self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
+        next unless new_record? || self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
         connection_default_value_defined = new_record? && respond_to?("#{attribute}_changed?") && !__send__("#{attribute}_changed?")
 
-        next unless connection_default_value_defined || self.attributes[attribute].blank?
+        column = self.class.columns.detect {|c| c.name == attribute}
+        attribute_blank = if column && column.type == :boolean
+          attributes[attribute].nil?
+        else
+          attributes[attribute].blank?
+        end
+        next unless connection_default_value_defined || attribute_blank
 
         # allow explicitly setting nil through allow nil option
         next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)

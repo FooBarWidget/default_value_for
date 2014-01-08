@@ -18,35 +18,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-want_rails_version = '~> ' + ENV.fetch('WANT_RAILS_VERSION', '3.2.0')
-
-require 'rubygems'
-gem 'rails', want_rails_version
-gem 'activerecord', want_rails_version
-begin
-  require 'rails/railtie'
-rescue LoadError
-end
+require 'bundler/setup'
+require 'minitest/autorun'
 require 'active_record'
-require 'test/unit'
 require 'active_support/dependencies'
-require 'active_support/core_ext/logger'
-$LOAD_PATH.unshift File.expand_path("lib", File.dirname(__FILE__))
+
+if ActiveSupport::VERSION::MAJOR < 4
+  require 'active_support/core_ext/logger'
+end
+
+begin
+  TestCaseClass = MiniTest::Test
+rescue NameError
+  TestCaseClass = MiniTest::Unit::TestCase
+end
+
 require 'default_value_for'
-Dir.chdir(File.dirname(__FILE__))
+
+puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}\n\n"
 
 if RUBY_PLATFORM == "java"
   database_adapter = "jdbcsqlite3"
 else
   database_adapter = "sqlite3"
 end
-
-File.unlink('test.sqlite3') rescue nil
+ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDERR)
 ActiveRecord::Base.logger.level = Logger::WARN
 ActiveRecord::Base.establish_connection(
-  :adapter => database_adapter,
-  :database => 'test.sqlite3'
+  :adapter  => database_adapter,
+  :database => ':memory:'
 )
 ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
   t.string :username
@@ -58,6 +59,7 @@ ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
   t.integer :count, :null => false, :default => 1
   t.integer :user_id
   t.timestamp :timestamp
+  t.boolean :flag
 end
 
 if defined?(Rails::Railtie)
@@ -72,7 +74,7 @@ end
 class Number < ActiveRecord::Base
 end
 
-class DefaultValuePluginTest < Test::Unit::TestCase
+class DefaultValuePluginTest < TestCaseClass
   def setup
     Number.create(:number => 9876)
   end
@@ -115,10 +117,10 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
     end
-    
+
     object = TestClass.create
-    assert_not_nil TestClass.find_by_number(1234)
-    
+    refute_nil TestClass.find_by_number(1234)
+
     # allows nil for existing records
     object.update_attribute(:number, nil)
     assert_nil TestClass.find_by_number(1234)
@@ -129,9 +131,9 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for(:number, :allows_nil => false) { 1234 }
     end
-    
+
     object = TestClass.create
-    
+
     # allows nil for existing records
     object.update_attribute(:number, nil)
     assert_nil TestClass.find_by_number(1234)
@@ -257,7 +259,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
       attr_accessor :hello
     end
 
-    assert_nothing_raised { TestSuperClass.new }
+    assert TestSuperClass.new
     assert !TestSuperClass._default_attribute_values.include?(:hello)
   end
 
@@ -265,7 +267,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     define_model_class do
       default_value_for :number, 1234
     end
-    assert_equal 9876, TestClass.find(:first).number
+    assert_equal 9876, TestClass.first.number
   end
 
   def test_also_works_on_attributes_that_arent_database_columns
@@ -277,31 +279,33 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     assert_equal 'hi', object.hello
   end
 
-  def test_constructor_ignores_forbidden_mass_assignment_attributes
-    define_model_class do
-      default_value_for :number, 1234
-      attr_protected :number
-    end
-    object = TestClass.new(:number => 5678, :count => 987)
-    assert_equal 1234, object.number
-    assert_equal 987, object.count
-  end
-
-  def test_constructor_respects_without_protection_option
-    define_model_class do
-      default_value_for :number, 1234
-      attr_protected :number
-      
-      def respond_to_mass_assignment_options?
-        respond_to? :mass_assignment_options
+  if ActiveRecord::VERSION::MAJOR < 4
+    def test_constructor_ignores_forbidden_mass_assignment_attributes
+      define_model_class do
+        default_value_for :number, 1234
+        attr_protected :number
       end
-    end
-    
-    if TestClass.new.respond_to_mass_assignment_options?
-      # test without protection feature if available in current ActiveRecord version
-      object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
-      assert_equal 5678, object.number
+      object = TestClass.new(:number => 5678, :count => 987)
+      assert_equal 1234, object.number
       assert_equal 987, object.count
+    end
+
+    def test_constructor_respects_without_protection_option
+      define_model_class do
+        default_value_for :number, 1234
+        attr_protected :number
+
+        def respond_to_mass_assignment_options?
+          respond_to? :mass_assignment_options
+        end
+      end
+
+      if TestClass.new.respond_to_mass_assignment_options?
+        # test without protection feature if available in current ActiveRecord version
+        object = TestClass.create!({:number => 5678, :count => 987}, :without_protection => true)
+        assert_equal 5678, object.number
+        assert_equal 987, object.count
+      end
     end
   end
 
@@ -413,7 +417,7 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     user2 = TestClass.new
     assert_equal([1], user2.hash[1])
   end
-  
+
   def test_constructor_does_not_affect_the_hash_passed_to_it
     define_model_class do
       default_value_for :count, 5
@@ -431,6 +435,18 @@ class DefaultValuePluginTest < Test::Unit::TestCase
     end
     define_model_class("SpecialNumber", "TestClass")
     n = SpecialNumber.create
-    assert_nothing_raised { SpecialNumber.find(n.id) }
+    assert SpecialNumber.find(n.id)
+  end
+
+  def test_does_not_see_false_as_blank_at_boolean_columns_for_existing_records
+    define_model_class do
+      default_value_for(:flag, :allows_nil => false) { true }
+    end
+
+    object = TestClass.create
+
+    # allows nil for existing records
+    object.update_attribute(:flag, false)
+    assert_equal false, TestClass.find(object.id).flag
   end
 end

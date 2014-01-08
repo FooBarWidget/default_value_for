@@ -21,19 +21,19 @@
 # Rails 3 initialization
 
 module DefaultValueFor
-	def self.initialize_railtie
-		ActiveSupport.on_load :active_record do
-			DefaultValueFor.initialize_active_record_extensions
-		end
-	end
-	
-	def self.initialize_active_record_extensions
-		ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
-	end
-	
-	class Railtie < Rails::Railtie
-		initializer 'default_value_for.insert_into_active_record' do
-			DefaultValueFor.initialize_railtie
-		end
-	end
+  def self.initialize_railtie
+    ActiveSupport.on_load :active_record do
+      DefaultValueFor.initialize_active_record_extensions
+    end
+  end
+
+  def self.initialize_active_record_extensions
+    ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
+  end
+
+  class Railtie < Rails::Railtie
+    initializer 'default_value_for.insert_into_active_record' do
+      DefaultValueFor.initialize_railtie
+    end
+  end
 end
