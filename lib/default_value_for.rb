@@ -144,7 +144,7 @@ module DefaultValueFor
     end
 
     def attributes_for_create(attribute_names)
-      attribute_names += _default_attribute_values.keys.map(&:to_s)
+      attribute_names += self.class._all_default_attribute_values.keys.map(&:to_s)
       super
     end
 

@@ -201,6 +201,18 @@ class DefaultValuePluginTest < TestCaseClass
     assert_equal 1234, object.number
   end
 
+  def test_default_values_in_superclass_are_saved_in_subclass
+    define_model_class("TestSuperClass") do
+      default_value_for :number, 1234
+    end
+    define_model_class("TestClass", "TestSuperClass") do
+      default_value_for :flag, true
+    end
+    object = TestClass.create!
+    assert_equal object.id, TestClass.find_by_number(1234).id
+    assert_equal object.id, TestClass.find_by_flag(true).id
+  end
+
   def test_default_values_in_subclass
     define_model_class("TestSuperClass") do
     end
