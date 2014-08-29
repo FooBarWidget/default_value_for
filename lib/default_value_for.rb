@@ -166,7 +166,11 @@ module DefaultValueFor
         next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
         __send__("#{attribute}=", container.evaluate(self))
-        changed_attributes.delete(attribute)
+        unless changed_attributes.frozen?
+          changed_attributes.delete(attribute)
+        else
+          instance_variable_set(:@changed_attributes, instance_variable_get(:@changed_attributes).delete_if{|k, v| k.to_s == attribute.to_s})
+        end
       end
     end
   end
