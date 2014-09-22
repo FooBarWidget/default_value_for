@@ -163,6 +163,8 @@ you can also chain it with method `with_value` and `and_disallow_nil`
 
 ``it { should set_default_value_for(:name).with_value('Filip').and_disallow_nil }``
 
+It doesn't support blocks yet (but you can fix it [here](lib/default_value_for/rspec_matcher.rb))
+
 ## Rules
 
 ### Instantiation of new record
