@@ -151,6 +151,18 @@ default_value_for(:uuid) { UuidGenerator.new.generate_uuid }
 
 instead. This is in part the inspiration for the +default_values+ syntax.
 
+# RSpec
+
+## Shoulda matcher
+
+You can use `set_default_value_for` method combined with `shoulda` to test model behaviour:
+
+`it { should set_default_value_for(:name)}`
+
+you can also chain it with method `with_value` and `and_disallow_nil`
+
+``it { should set_default_value_for(:name).with_value('Filip').and_disallow_nil }``
+
 ## Rules
 
 ### Instantiation of new record
