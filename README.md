@@ -155,6 +155,8 @@ instead. This is in part the inspiration for the +default_values+ syntax.
 
 ## Shoulda matcher
 
+Firstly, `require 'default_value_for/rspec_matcher'` at the top of `spec_helper.rb`
+
 You can use `set_default_value_for` method combined with `shoulda` to test model behaviour:
 
 `it { should set_default_value_for(:name)}`
