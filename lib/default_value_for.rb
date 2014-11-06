@@ -166,7 +166,11 @@ module DefaultValueFor
         next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
         __send__("#{attribute}=", container.evaluate(self))
-        changed_attributes.delete(attribute)
+        if self.class.private_instance_methods.include? :clear_attribute_changes
+          clear_attribute_changes attribute
+        else
+          changed_attributes.delete(attribute)
+        end
       end
     end
   end

@@ -20,7 +20,7 @@ u.last_seen  # => Mon Sep 22 17:28:38 +0200 2008
 
 ## Installation
 
-### Rails 3.2 - 4.1 / Ruby 1.9.3 and higher
+### Rails 3.2 - 4.2 / Ruby 1.9.3 and higher
 
 The current version of default_value_for (3.0.x) is compatible with Rails 3.2 or higher, and Ruby 1.9.3 and higher.
 
