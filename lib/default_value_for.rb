@@ -109,6 +109,14 @@ module DefaultValueFor
   end
 
   module DelayedClassMethods
+    def self.extended(base_class)
+      if ::ActiveRecord.const_defined?('AssociationRelation')
+        return unless ::ActiveRecord::Base === base_class
+        association_relation_delegate_class = base_class.relation_delegate_class(::ActiveRecord::AssociationRelation)
+        association_relation_delegate_class.send(:extend, self)
+      end
+    end
+
     def _all_default_attribute_values
       return _default_attribute_values unless superclass.respond_to?(:_default_attribute_values)
       superclass._all_default_attribute_values.merge(_default_attribute_values)
