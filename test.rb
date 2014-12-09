@@ -75,10 +75,6 @@ class Number < ActiveRecord::Base
 end
 
 class DefaultValuePluginTest < TestCaseClass
-
-  # SCREAMING RED HOT TODO: Fix this
-  i_suck_and_my_tests_are_order_dependent!
-
   def setup
     Number.create(:number => 9876)
   end
