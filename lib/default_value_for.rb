@@ -144,7 +144,9 @@ module DefaultValueFor
     end
 
     def attributes_for_create(attribute_names)
-      attribute_names += self.class._all_default_attribute_values.keys.map(&:to_s)
+      attribute_names += self.class._all_default_attribute_values.keys.map(&:to_s).find_all { |name|
+        self.class.columns_hash.key?(name)
+      }
       super
     end
 

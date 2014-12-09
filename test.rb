@@ -59,6 +59,7 @@ ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
   t.integer :count, :null => false, :default => 1
   t.integer :user_id
   t.timestamp :timestamp
+  t.text :stuff
   t.boolean :flag
 end
 
@@ -99,6 +100,20 @@ class DefaultValuePluginTest < TestCaseClass
       end
     end
     klass.class_eval(&block) if block_given?
+  end
+
+  def test_default_value_on_attribute_methods
+    define_model_class do
+      serialize :stuff
+      default_value_for :color, :green
+      def color; (self.stuff || {})[:color]; end
+      def color=(val)
+        self.stuff ||= {}
+        self.stuff[:color] = val
+      end
+    end
+    object = TestClass.create
+    assert_equal :green, object.color
   end
 
   def test_default_value_can_be_passed_as_argument
