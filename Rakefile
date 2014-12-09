@@ -5,7 +5,7 @@ task :test do
   ruby "test.rb"
 end
 
-['3.2', '4.0', '4.1'].each do |version|
+['3.2', '4.0', '4.1', '4.2'].each do |version|
   dotless = version.delete('.')
 
   namespace :bundle do
