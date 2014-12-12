@@ -76,10 +76,6 @@ class Number < ActiveRecord::Base
 end
 
 class DefaultValuePluginTest < TestCaseClass
-
-  # SCREAMING RED HOT TODO: Fix this
-  i_suck_and_my_tests_are_order_dependent!
-
   def setup
     Number.create(:number => 9876)
   end
@@ -224,12 +220,12 @@ class DefaultValuePluginTest < TestCaseClass
     define_model_class("TestSuperClass") do
       default_value_for :number, 1234
     end
-    define_model_class("TestClass", "TestSuperClass") do
+    define_model_class("TestClass2", "TestSuperClass") do
       default_value_for :flag, true
     end
-    object = TestClass.create!
-    assert_equal object.id, TestClass.find_by_number(1234).id
-    assert_equal object.id, TestClass.find_by_flag(true).id
+    object = TestClass2.create!
+    assert_equal object.id, TestClass2.find_by_number(1234).id
+    assert_equal object.id, TestClass2.find_by_flag(true).id
   end
 
   def test_default_values_in_subclass
