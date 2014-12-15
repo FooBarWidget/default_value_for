@@ -18,8 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Rails 3 initialization
-
 module DefaultValueFor
   def self.initialize_railtie
     ActiveSupport.on_load :active_record do

@@ -181,6 +181,6 @@ end
 if defined?(Rails::Railtie)
   require 'default_value_for/railtie'
 else
-  # Rails 2 initialization
+  # For anybody is using AS and AR without Railties, i.e. Padrino.
   ActiveRecord::Base.extend(DefaultValueFor::ClassMethods)
 end
