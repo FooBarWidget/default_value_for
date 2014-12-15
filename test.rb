@@ -296,12 +296,12 @@ class DefaultValuePluginTest < TestCaseClass
   end
 
   def test_model_instance_is_passed_to_the_given_block
-    $instance = nil
+    instance = nil
     Book.default_value_for :number do |n|
-      $instance = n
+      instance = n
     end
     object = Book.new
-    assert_same object, $instance
+    assert_same object.object_id, instance.object_id
   end
 
   def test_can_specify_default_value_via_association
