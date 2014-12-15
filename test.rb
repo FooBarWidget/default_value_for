@@ -93,20 +93,17 @@ class DefaultValuePluginTest < TestCaseClass
         self.stuff[:color] = val
       end
     end
-    object = Book.create
-    assert_equal :green, object.color
+    assert_equal :green, Book.create.color
   end
 
   def test_default_value_can_be_passed_as_argument
     Book.default_value_for(:number, 1234)
-    object = Book.new
-    assert_equal 1234, object.number
+    assert_equal 1234, Book.new.number
   end
 
   def test_default_value_can_be_passed_as_block
     Book.default_value_for(:number) { 1234 }
-    object = Book.new
-    assert_equal 1234, object.number
+    assert_equal 1234, Book.new.number
   end
 
   def test_works_with_create
@@ -134,14 +131,12 @@ class DefaultValuePluginTest < TestCaseClass
 
   def test_overwrites_db_default
     Book.default_value_for :count, 1234
-    object = Book.new
-    assert_equal 1234, object.count
+    assert_equal 1234, Book.new.count
   end
 
   def test_doesnt_overwrite_values_provided_by_mass_assignment
     Book.default_value_for :number, 1234
-    object = Book.new(:number => 1, :count => 2)
-    assert_equal 1, object.number
+    assert_equal 1, Book.new(:number => 1, :count => 2).number
   end
 
   def test_doesnt_overwrite_values_provided_by_multiparameter_assignment
@@ -155,27 +150,24 @@ class DefaultValuePluginTest < TestCaseClass
     Book.default_value_for :number, 1234
     object = Book.new do |x|
       x.number = 1
-      x.count = 2
+      x.count  = 2
     end
     assert_equal 1, object.number
   end
 
   def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment
     Book.default_value_for :number, 1234
-    object = Book.new(:number => nil)
-    assert_equal nil, object.number
+    assert_equal nil, Book.new(:number => nil).number
   end
 
   def test_overwrites_explicitly_provided_nil_values_in_mass_assignment
     Book.default_value_for :number, :value => 1234, :allows_nil => false
-    object = Book.new(:number => nil)
-    assert_equal 1234, object.number
+    assert_equal 1234, Book.new(:number => nil).number
   end
 
   def test_default_values_are_inherited
     Book.default_value_for :number, 1234
-    object = Novel.new
-    assert_equal 1234, object.number
+    assert_equal 1234, Novel.new.number
   end
 
   def test_default_values_in_superclass_are_saved_in_subclass
@@ -188,11 +180,8 @@ class DefaultValuePluginTest < TestCaseClass
 
   def test_default_values_in_subclass
     Novel.default_value_for :number, 5678
-    object = Novel.new
-    assert_equal 5678, object.number
-
-    object = Book.new
-    assert_nil object.number
+    assert_equal 5678, Novel.new.number
+    assert_nil Book.new.number
   end
 
   def test_multiple_default_values_in_subclass_with_default_values_in_parent_class
@@ -216,12 +205,8 @@ class DefaultValuePluginTest < TestCaseClass
   def test_override_default_values_in_subclass
     Book.default_value_for :number, 1234
     Novel.default_value_for :number, 5678
-
-    object = Novel.new
-    assert_equal 5678, object.number
-
-    object = Book.new
-    assert_equal 1234, object.number
+    assert_equal 5678, Novel.new.number
+    assert_equal 1234, Book.new.number
   end
 
   def test_default_values_in_subclass_do_not_affect_parent_class
@@ -246,8 +231,7 @@ class DefaultValuePluginTest < TestCaseClass
       default_value_for :hello, "hi"
       attr_accessor :hello
     end
-    object = Book.new
-    assert_equal 'hi', object.hello
+    assert_equal 'hi', Book.new.hello
   end
 
   if ActiveRecord::VERSION::MAJOR < 4
@@ -309,8 +293,7 @@ class DefaultValuePluginTest < TestCaseClass
     Book.default_value_for :number do |n|
       n.user.default_number
     end
-    object = user.books.create
-    assert_equal 123, object.number
+    assert_equal 123, user.books.create!.number
   end
 
   def test_default_values
