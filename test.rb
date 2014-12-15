@@ -65,19 +65,20 @@ if defined?(Rails::Railtie)
   DefaultValueFor.initialize_active_record_extensions
 end
 
-class User < ActiveRecord::Base
-  has_many :numbers, :class_name => 'TestClass'
-end
-
-class Number < ActiveRecord::Base
-end
-
 class DefaultValuePluginTest < TestCaseClass
   def around
+    Object.const_set(:User, Class.new(ActiveRecord::Base))
+    Object.const_set(:Number, Class.new(ActiveRecord::Base))
+    User.has_many :numbers, :class_name => 'TestClass'
+    Number.belongs_to :user
+
     ActiveRecord::Base.transaction do
       yield
       raise ActiveRecord::Rollback
     end
+  ensure
+    Object.send(:remove_const, :User)
+    Object.send(:remove_const, :Number)
   end
 
   def define_model_class(name = "TestClass", parent_class_name = "ActiveRecord::Base", &block)
