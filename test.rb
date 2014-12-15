@@ -74,7 +74,6 @@ end
 class DefaultValuePluginTest < TestCaseClass
   def around
     ActiveRecord::Base.transaction do
-      Number.create(:number => 9876)
       yield
       raise ActiveRecord::Rollback
     end
@@ -287,6 +286,7 @@ class DefaultValuePluginTest < TestCaseClass
   end
 
   def test_doesnt_set_default_on_saved_records
+    Number.create(:number => 9876)
     define_model_class do
       default_value_for :number, 1234
     end
