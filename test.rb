@@ -37,16 +37,11 @@ require 'default_value_for'
 
 puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}\n\n"
 
-if RUBY_PLATFORM == "java"
-  database_adapter = "jdbcsqlite3"
-else
-  database_adapter = "sqlite3"
-end
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDERR)
 ActiveRecord::Base.logger.level = Logger::WARN
 ActiveRecord::Base.establish_connection(
-  :adapter  => database_adapter,
+  :adapter  => RUBY_PLATFORM == 'java' ? 'jdbcsqlite3' : 'sqlite3',
   :database => ':memory:'
 )
 ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
