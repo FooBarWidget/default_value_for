@@ -39,12 +39,14 @@ require 'default_value_for'
 puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}\n\n"
 
 ActiveRecord::Base.default_timezone = :local
-ActiveRecord::Base.logger = Logger.new(STDERR)
-ActiveRecord::Base.logger.level = Logger::WARN
+ActiveRecord::Base.logger           = Logger.new(STDERR)
+ActiveRecord::Base.logger.level     = Logger::WARN
+
 ActiveRecord::Base.establish_connection(
   :adapter  => RUBY_PLATFORM == 'java' ? 'jdbcsqlite3' : 'sqlite3',
   :database => ':memory:'
 )
+
 ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
   t.string :username
   t.integer :default_number
