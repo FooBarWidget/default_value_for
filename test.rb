@@ -49,6 +49,7 @@ ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
   t.string :username
   t.integer :default_number
 end
+
 ActiveRecord::Base.connection.create_table(:numbers, :force => true) do |t|
   t.string :type
   t.integer :number
@@ -84,11 +85,7 @@ class DefaultValuePluginTest < TestCaseClass
     eval("class #{name} < #{parent_class_name}; end", TOPLEVEL_BINDING)
     klass = eval(name, TOPLEVEL_BINDING)
     klass.class_eval do
-      if respond_to?(:table_name=)
-        self.table_name = 'numbers'
-      else
-        set_table_name 'numbers'
-      end
+      self.table_name = 'numbers'
     end
     klass.class_eval(&block) if block_given?
   end
