@@ -236,7 +236,7 @@ class DefaultValuePluginTest < TestCaseClass
     assert_equal 'hi', Book.new.hello
   end
 
-  if ActiveRecord::VERSION::MAJOR < 4
+  if ActiveRecord::VERSION::MAJOR == 3
     def test_constructor_ignores_forbidden_mass_assignment_attributes
       Book.class_eval do
         default_value_for :number, 1234
@@ -251,18 +251,11 @@ class DefaultValuePluginTest < TestCaseClass
       Book.class_eval do
         default_value_for :number, 1234
         attr_protected :number
-
-        def respond_to_mass_assignment_options?
-          respond_to? :mass_assignment_options
-        end
       end
 
-      if Book.new.respond_to_mass_assignment_options?
-        # test without protection feature if available in current ActiveRecord version
-        object = Book.create!({:number => 5678, :count => 987}, :without_protection => true)
-        assert_equal 5678, object.number
-        assert_equal 987, object.count
-      end
+      object = Book.create!({:number => 5678, :count => 987}, :without_protection => true)
+      assert_equal 5678, object.number
+      assert_equal 987, object.count
     end
   end
 
