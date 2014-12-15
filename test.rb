@@ -343,6 +343,16 @@ class DefaultValuePluginTest < TestCaseClass
     assert_equal false, Book.find(object.id).flag
   end
 
+  def test_works_with_nested_attributes
+    User.accepts_nested_attributes_for :books
+    User.default_value_for :books do
+      [Book.create!(:number => 0)]
+    end
+
+    user = User.create! :books_attributes => [{:number => 1}]
+    assert_equal 1, Book.all.first.number
+  end
+
   if ActiveRecord::VERSION::MAJOR == 3
     def test_constructor_ignores_forbidden_mass_assignment_attributes
       Book.class_eval do

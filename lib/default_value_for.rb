@@ -165,7 +165,15 @@ module DefaultValueFor
         next unless connection_default_value_defined || attribute_blank
 
         # allow explicitly setting nil through allow nil option
-        next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
+        next if @initialization_attributes.is_a?(Hash) &&
+                (
+                  @initialization_attributes.has_key?(attribute) ||
+                  (
+                    @initialization_attributes.has_key?("#{attribute}_attributes") &&
+                    nested_attributes_options.stringify_keys[attribute]
+                  )
+                ) &&
+                !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
         __send__("#{attribute}=", container.evaluate(self))
         if self.class.private_instance_methods.include? :clear_attribute_changes
