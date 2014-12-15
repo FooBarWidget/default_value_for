@@ -24,7 +24,7 @@ require 'minitest/around/unit'
 require 'active_record'
 require 'active_support/dependencies'
 
-if ActiveSupport::VERSION::MAJOR < 4
+if ActiveSupport::VERSION::MAJOR == 3
   require 'active_support/core_ext/logger'
 end
 
@@ -233,29 +233,6 @@ class DefaultValuePluginTest < TestCaseClass
     assert_equal 'hi', Book.new.hello
   end
 
-  if ActiveRecord::VERSION::MAJOR == 3
-    def test_constructor_ignores_forbidden_mass_assignment_attributes
-      Book.class_eval do
-        default_value_for :number, 1234
-        attr_protected :number
-      end
-      object = Book.new(:number => 5678, :count => 987)
-      assert_equal 1234, object.number
-      assert_equal 987, object.count
-    end
-
-    def test_constructor_respects_without_protection_option
-      Book.class_eval do
-        default_value_for :number, 1234
-        attr_protected :number
-      end
-
-      object = Book.create!({:number => 5678, :count => 987}, :without_protection => true)
-      assert_equal 5678, object.number
-      assert_equal 987, object.count
-    end
-  end
-
   def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
     Book.class_eval do
       def initialize(attrs = {})
@@ -364,5 +341,28 @@ class DefaultValuePluginTest < TestCaseClass
     # allows nil for existing records
     object.update_attribute(:flag, false)
     assert_equal false, Book.find(object.id).flag
+  end
+
+  if ActiveRecord::VERSION::MAJOR == 3
+    def test_constructor_ignores_forbidden_mass_assignment_attributes
+      Book.class_eval do
+        default_value_for :number, 1234
+        attr_protected :number
+      end
+      object = Book.new(:number => 5678, :count => 987)
+      assert_equal 1234, object.number
+      assert_equal 987, object.count
+    end
+
+    def test_constructor_respects_without_protection_option
+      Book.class_eval do
+        default_value_for :number, 1234
+        attr_protected :number
+      end
+
+      object = Book.create!({:number => 5678, :count => 987}, :without_protection => true)
+      assert_equal 5678, object.number
+      assert_equal 987, object.count
+    end
   end
 end
