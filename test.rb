@@ -150,7 +150,7 @@ class DefaultValuePluginTest < TestCaseClass
     assert_equal 1234, TestClass.find(object.id).number
   end
 
-   def test_overwrites_db_default
+  def test_overwrites_db_default
     define_model_class do
       default_value_for :count, 1234
     end
@@ -447,7 +447,7 @@ class DefaultValuePluginTest < TestCaseClass
 
     options = { :count => 5, :user_id => 1 }
     options_dup = options.dup
-    object = TestClass.new(options)
+    TestClass.new(options)
     assert_equal(options_dup, options)
   end
 
