@@ -69,6 +69,7 @@ class DefaultValuePluginTest < TestCaseClass
   def around
     Object.const_set(:User, Class.new(ActiveRecord::Base))
     Object.const_set(:Book, Class.new(ActiveRecord::Base))
+    Object.const_set(:Novel, Class.new(Book))
     User.has_many :books
     Book.belongs_to :user
 
@@ -79,16 +80,7 @@ class DefaultValuePluginTest < TestCaseClass
   ensure
     Object.send(:remove_const, :User)
     Object.send(:remove_const, :Book)
-  end
-
-  def define_model_class(name = "TestClass", parent_class_name = "ActiveRecord::Base", &block)
-    Object.send(:remove_const, name) rescue nil
-    eval("class #{name} < #{parent_class_name}; end", TOPLEVEL_BINDING)
-    klass = eval(name, TOPLEVEL_BINDING)
-    klass.class_eval do
-      self.table_name = 'books'
-    end
-    klass.class_eval(&block) if block_given?
+    Object.send(:remove_const, :Novel)
   end
 
   def test_default_value_on_attribute_methods
@@ -181,86 +173,66 @@ class DefaultValuePluginTest < TestCaseClass
   end
 
   def test_default_values_are_inherited
-    define_model_class("TestSuperClass") do
-      default_value_for :number, 1234
-    end
-    define_model_class("TestClass", "TestSuperClass")
-    object = TestClass.new
+    Book.default_value_for :number, 1234
+    object = Novel.new
     assert_equal 1234, object.number
   end
 
   def test_default_values_in_superclass_are_saved_in_subclass
-    define_model_class("TestSuperClass") do
-      default_value_for :number, 1234
-    end
-    define_model_class("TestClass2", "TestSuperClass") do
-      default_value_for :flag, true
-    end
-    object = TestClass2.create!
-    assert_equal object.id, TestClass2.find_by_number(1234).id
-    assert_equal object.id, TestClass2.find_by_flag(true).id
+    Book.default_value_for :number, 1234
+    Novel.default_value_for :flag, true
+    object = Novel.create!
+    assert_equal object.id, Novel.find_by_number(1234).id
+    assert_equal object.id, Novel.find_by_flag(true).id
   end
 
   def test_default_values_in_subclass
-    define_model_class("TestSuperClass") do
-    end
-    define_model_class("TestClass", "TestSuperClass") do
-      default_value_for :number, 5678
-    end
-
-    object = TestClass.new
+    Novel.default_value_for :number, 5678
+    object = Novel.new
     assert_equal 5678, object.number
 
-    object = TestSuperClass.new
+    object = Book.new
     assert_nil object.number
   end
 
   def test_multiple_default_values_in_subclass_with_default_values_in_parent_class
-    define_model_class("TestSuperClass") do
+    Book.class_eval do
       default_value_for :other_number, nil
       attr_accessor :other_number
     end
-    define_model_class("TestClass", "TestSuperClass") do
-      default_value_for :number, 5678
+    Novel.default_value_for :number, 5678
 
-      # Ensure second call in this class doesn't reset _default_attribute_values,
-      # and also doesn't consider the parent class' _default_attribute_values when
-      # making that check.
-      default_value_for :user_id, 9999
-    end
+    # Ensure second call in this class doesn't reset _default_attribute_values,
+    # and also doesn't consider the parent class' _default_attribute_values when
+    # making that check.
+    Novel.default_value_for :user_id, 9999
 
-    object = TestClass.new
+    object = Novel.new
     assert_nil object.other_number
     assert_equal 5678, object.number
     assert_equal 9999, object.user_id
   end
 
   def test_override_default_values_in_subclass
-    define_model_class("TestSuperClass") do
-      default_value_for :number, 1234
-    end
-    define_model_class("TestClass", "TestSuperClass") do
-      default_value_for :number, 5678
-    end
+    Book.default_value_for :number, 1234
+    Novel.default_value_for :number, 5678
 
-    object = TestClass.new
+    object = Novel.new
     assert_equal 5678, object.number
 
-    object = TestSuperClass.new
+    object = Book.new
     assert_equal 1234, object.number
   end
 
   def test_default_values_in_subclass_do_not_affect_parent_class
-    define_model_class("TestSuperClass") do
-      default_value_for :number, 1234
-    end
-    define_model_class("TestClass", "TestSuperClass") do
+    Book.default_value_for :number, 1234
+    Novel.class_eval do
       default_value_for :hello, "hi"
       attr_accessor :hello
     end
 
-    assert TestSuperClass.new
-    assert !TestSuperClass._default_attribute_values.include?(:hello)
+    assert Book.new
+    assert !Book._default_attribute_values.include?(:hello)
   end
 
   def test_doesnt_set_default_on_saved_records
@@ -377,33 +349,21 @@ class DefaultValuePluginTest < TestCaseClass
   end
 
   def test_default_values_are_duplicated
-    define_model_class do
-      if respond_to?(:table_name=)
-        self.table_name = "users"
-      else
-        set_table_name "users"
-      end
-      default_value_for :username, "hello"
-    end
-    user1 = TestClass.new
+    User.default_value_for :username, "hello"
+    user1 = User.new
     user1.username << " world"
-    user2 = TestClass.new
+    user2 = User.new
     assert_equal("hello", user2.username)
   end
 
   def test_default_values_are_shallow_copied
-    define_model_class do
-      if respond_to?(:table_name=)
-        self.table_name = "users"
-      else
-        set_table_name "users"
-      end
+    User.class_eval do
       attr_accessor :hash
       default_value_for :hash, { 1 => [] }
     end
-    user1 = TestClass.new
+    user1 = User.new
     user1.hash[1] << 1
-    user2 = TestClass.new
+    user2 = User.new
     assert_equal([1], user2.hash[1])
   end
 
@@ -416,12 +376,9 @@ class DefaultValuePluginTest < TestCaseClass
   end
 
   def test_subclass_find
-    define_model_class do
-      default_value_for :number, 5678
-    end
-    define_model_class("SpecialBook", "TestClass")
-    n = SpecialBook.create
-    assert SpecialBook.find(n.id)
+    Book.default_value_for :number, 5678
+    n = Novel.create
+    assert Novel.find(n.id)
   end
 
   def test_does_not_see_false_as_blank_at_boolean_columns_for_existing_records
