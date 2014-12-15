@@ -73,9 +73,11 @@ end
 
 class DefaultValuePluginTest < TestCaseClass
   def around
-    Number.create(:number => 9876)
-    yield
-    Number.delete_all
+    ActiveRecord::Base.transaction do
+      Number.create(:number => 9876)
+      yield
+      raise ActiveRecord::Rollback
+    end
   end
 
   def define_model_class(name = "TestClass", parent_class_name = "ActiveRecord::Base", &block)
