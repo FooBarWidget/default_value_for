@@ -22,7 +22,6 @@ require 'bundler/setup'
 require 'minitest/autorun'
 require 'minitest/around/unit'
 require 'active_record'
-require 'active_support/dependencies'
 
 if ActiveSupport::VERSION::MAJOR == 3
   require 'active_support/core_ext/logger'
@@ -83,6 +82,7 @@ class DefaultValuePluginTest < TestCaseClass
     Object.send(:remove_const, :User)
     Object.send(:remove_const, :Book)
     Object.send(:remove_const, :Novel)
+    ActiveSupport::Dependencies.clear
   end
 
   def test_default_value_on_attribute_methods
