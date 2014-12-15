@@ -17,4 +17,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'activerecord', '>= 3.2.0', '< 5.0'
   s.add_development_dependency 'railties', '>= 3.2.0', '< 5.0'
   s.add_development_dependency 'minitest', '>= 4.2'
+  s.add_development_dependency 'minitest-around'
 end

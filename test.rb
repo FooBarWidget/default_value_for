@@ -20,6 +20,7 @@
 
 require 'bundler/setup'
 require 'minitest/autorun'
+require 'minitest/around/unit'
 require 'active_record'
 require 'active_support/dependencies'
 
@@ -71,11 +72,9 @@ class Number < ActiveRecord::Base
 end
 
 class DefaultValuePluginTest < TestCaseClass
-  def setup
+  def around
     Number.create(:number => 9876)
-  end
-
-  def teardown
+    yield
     Number.delete_all
   end
 
