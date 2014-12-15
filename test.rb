@@ -120,12 +120,9 @@ class DefaultValuePluginTest < TestCaseClass
     assert_nil Book.find(object.id).number
   end
 
-  def test_does_not_allow_nil_for_existing_record
+  def test_does_not_allow_nil_sets_default_value_on_existing_nils
     Book.default_value_for(:number, :allows_nil => false) { 1234 }
-
     object = Book.create
-
-    # allows nil for existing records
     object.update_attribute(:number, nil)
     assert_nil Book.find_by_number(1234)
     assert_equal 1234, Book.find(object.id).number
