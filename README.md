@@ -155,7 +155,7 @@ instead. This is in part the inspiration for the +default_values+ syntax.
 
 ### RSpec
 
-[default_value_for-matchers](https://github.com/kami30k/default_value_for) provides RSpec matchers for testing `default_value_for` method.
+[default_value_for-matchers](https://github.com/kami30k/default_value_for-matchers) provides RSpec matchers for testing `default_value_for` method.
 
 For example:
 
