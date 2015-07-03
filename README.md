@@ -151,6 +151,18 @@ default_value_for(:uuid) { UuidGenerator.new.generate_uuid }
 
 instead. This is in part the inspiration for the +default_values+ syntax.
 
+## Testing
+
+### RSpec
+
+[default_value_for-matchers](https://github.com/kami30k/default_value_for) provides RSpec matchers for testing `default_value_for` method.
+
+For example:
+
+```ruby
+it { is_expected.to have_default_value_for(:name).with_value('(no name)').and_disallow_nil }
+```
+
 ## Rules
 
 ### Instantiation of new record
