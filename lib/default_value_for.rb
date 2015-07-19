@@ -65,7 +65,9 @@ module DefaultValueFor
         allows_nil = opts.fetch('allows_nil', true)
       end
 
-      if !method_defined?(:set_default_values)
+      unless method_defined?(:set_default_values)
+        init_hash = !singleton_methods(false).include?(:_default_attribute_values)
+      else
         include(InstanceMethods)
 
         after_initialize :set_default_values
@@ -75,8 +77,6 @@ module DefaultValueFor
 
         extend(DelayedClassMethods)
         init_hash = true
-      else
-        init_hash = !singleton_methods(false).include?(:_default_attribute_values)
       end
 
       if init_hash
