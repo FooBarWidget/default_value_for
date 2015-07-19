@@ -511,7 +511,7 @@ class User < ActiveRecord::Base
 
   def uuid
     value = read_attribute('uuid')
-    if !value
+    unless value
       value = generate_uuid
       write_attribute('uuid', value)
     end

@@ -65,7 +65,9 @@ module DefaultValueFor
         allows_nil = opts.fetch('allows_nil', true)
       end
 
-      if !method_defined?(:set_default_values)
+      unless method_defined?(:set_default_values)
+        init_hash = !singleton_methods(false).include?(:_default_attribute_values)
+      else
         include(InstanceMethods)
 
         after_initialize :set_default_values
@@ -75,8 +77,6 @@ module DefaultValueFor
 
         extend(DelayedClassMethods)
         init_hash = true
-      else
-        init_hash = !singleton_methods(false).include?(:_default_attribute_values)
       end
 
       if init_hash
@@ -117,8 +117,7 @@ module DefaultValueFor
     def _all_default_attribute_values_not_allowing_nil
       return _default_attribute_values_not_allowing_nil unless superclass.respond_to?(:_default_attribute_values_not_allowing_nil)
       result = superclass._all_default_attribute_values_not_allowing_nil.concat(_default_attribute_values_not_allowing_nil)
-      result.uniq!
-      result
+      result.uniq
     end
   end
 
