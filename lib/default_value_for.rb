@@ -176,7 +176,7 @@ module DefaultValueFor
                 !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
         __send__("#{attribute}=", container.evaluate(self))
-        if self.class.private_instance_methods.include? :clear_attribute_changes
+        if respond_to?(:clear_attribute_changes, true)
           clear_attribute_changes attribute
         else
           changed_attributes.delete(attribute)
