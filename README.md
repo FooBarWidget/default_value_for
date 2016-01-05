@@ -364,7 +364,7 @@ Also, stick with the following rules:
 
 * There is no need to +alias_method_chain+ your initialize method in models that don't use `default_value_for`.
 
-* Make sure that +alias_method_chain+ is called *after* the last `default_value_for` occurance.
+* Make sure that +alias_method_chain+ is called *after* the last `default_value_for` occurrence.
 
 If your default value is accidentally similar to default_value_for's options hash wrap your default value like this:
 
