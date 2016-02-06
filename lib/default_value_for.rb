@@ -178,6 +178,8 @@ module DefaultValueFor
         __send__("#{attribute}=", container.evaluate(self))
         if self.class.private_instance_methods.include? :clear_attribute_changes
           clear_attribute_changes attribute
+        elsif self.class.instance_methods.include? :clear_attribute_changes
+          clear_attribute_changes [attribute]
         else
           changed_attributes.delete(attribute)
         end
