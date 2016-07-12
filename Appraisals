@@ -11,7 +11,11 @@ appraise 'rails-41' do
 end
 
 appraise 'rails-42' do
-  gem 'activesupport', '~> 4.2.0.rc.3'
-  gem 'activerecord', '~> 4.2.0.rc.3'
-  gem 'railties', '~> 4.2.0.rc.3'
+  gem 'activerecord', '~> 4.2.0'
+end
+
+appraise 'rails-50' do
+  gem 'activesupport', '~> 5.0.0.beta1'
+  gem 'activerecord', '~> 5.0.0.beta1'
+  gem 'railties', '~> 5.0.0.beta1'
 end
