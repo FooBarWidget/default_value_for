@@ -553,4 +553,6 @@ I've wanted such functionality for a while now and it baffled me that ActiveReco
 
 Thanks to Pratik Naik for providing the initial code snippet on which this plugin is based on: http://m.onkey.org/2007/7/24/how-to-set-default-values-in-your-model
 
+Thanks to Matthew Draper for Rails 5 support.
+
 Thanks to Norman Clarke and Tom Mango for Rails 4 support.
