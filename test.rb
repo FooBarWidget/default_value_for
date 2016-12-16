@@ -49,6 +49,7 @@ ActiveRecord::Base.establish_connection(
 ActiveRecord::Base.connection.create_table(:users, :force => true) do |t|
   t.string :username
   t.integer :default_number
+  t.text :settings
 end
 
 ActiveRecord::Base.connection.create_table(:books, :force => true) do |t|
@@ -351,6 +352,14 @@ class DefaultValuePluginTest < TestCaseClass
 
     user = User.create! :books_attributes => [{:number => 1}]
     assert_equal 1, Book.all.first.number
+  end
+
+  def test_works_with_stored_attribute_accessors_when_initializing_value_that_does_not_allow_nil
+    User.store :settings, :accessors => :bio
+    User.default_value_for :bio, :value => 'None given', :allows_nil => false
+
+    user = User.create!(:bio => 'This is a bio')
+    assert_equal 'This is a bio', user.bio
   end
 
   if ActiveRecord::VERSION::MAJOR == 3

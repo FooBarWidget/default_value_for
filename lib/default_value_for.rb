@@ -158,9 +158,9 @@ module DefaultValueFor
 
         column = self.class.columns.detect {|c| c.name == attribute}
         attribute_blank = if column && column.type == :boolean
-          attributes[attribute].nil?
+          send(attribute).nil?
         else
-          attributes[attribute].blank?
+          send(attribute).blank?
         end
         next unless connection_default_value_defined || attribute_blank
 
