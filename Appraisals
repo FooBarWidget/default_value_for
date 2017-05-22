@@ -15,7 +15,13 @@ appraise 'rails-42' do
 end
 
 appraise 'rails-50' do
-  gem 'activesupport', '~> 5.0.0'
-  gem 'activerecord', '~> 5.0.0'
-  gem 'railties', '~> 5.0.0'
+  gem 'activesupport', '~> 5.0.3'
+  gem 'activerecord', '~> 5.0.3'
+  gem 'railties', '~> 5.0.3'
+end
+
+appraise 'rails-51' do
+  gem 'activesupport', '~> 5.1.1'
+  gem 'activerecord', '~> 5.1.1'
+  gem 'railties', '~> 5.1.1'
 end
