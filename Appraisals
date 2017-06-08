@@ -19,3 +19,9 @@ appraise 'rails-50' do
   gem 'activerecord', '~> 5.0.0'
   gem 'railties', '~> 5.0.0'
 end
+
+appraise 'rails-51' do
+  gem 'activesupport', '~> 5.1.0'
+  gem 'activerecord', '~> 5.1.0'
+  gem 'railties', '~> 5.1.0'
+end
