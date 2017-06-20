@@ -124,6 +124,7 @@ module DefaultValueFor
 
   module InstanceMethods
     def initialize(attributes = nil, options = {})
+      attributes = attributes.to_h if attributes.is_a?(ActionController::Parameters)
       @initialization_attributes = attributes.is_a?(Hash) ? attributes.stringify_keys : {}
 
       unless options[:without_protection]
