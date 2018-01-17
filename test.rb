@@ -157,7 +157,7 @@ class DefaultValuePluginTest < TestCaseClass
 
   def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment
     Book.default_value_for :number, 1234
-    assert_equal nil, Book.new(:number => nil).number
+    assert_nil Book.new(:number => nil).number
   end
 
   def test_overwrites_explicitly_provided_nil_values_in_mass_assignment
