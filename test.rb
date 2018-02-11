@@ -234,6 +234,14 @@ class DefaultValuePluginTest < TestCaseClass
     assert_equal 'hi', Book.new.hello
   end
 
+  def test_works_on_attributes_that_only_have_writers
+    Book.class_eval do
+      default_value_for :hello, "hi"
+      attr_writer :hello
+    end
+    assert_equal 'hi', Book.new.instance_variable_get('@hello')
+  end
+
   def test_doesnt_conflict_with_overrided_initialize_method_in_model_class
     Book.class_eval do
       def initialize(attrs = {})
