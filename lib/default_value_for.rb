@@ -156,19 +156,7 @@ module DefaultValueFor
 
         connection_default_value_defined = new_record? && respond_to?("#{attribute}_changed?") && !__send__("#{attribute}_changed?")
 
-        attribute_blank = if attributes.has_key?(attribute)
-                            column = self.class.columns_hash[attribute]
-                            if column && column.type == :boolean
-                              attributes[attribute].nil?
-                            else
-                              attributes[attribute].blank?
-                            end
-                          elsif respond_to?(attribute)
-                            send(attribute).nil?
-                          else
-                            instance_variable_get("@#{attribute}").nil?
-                          end
-        next unless connection_default_value_defined || attribute_blank
+        next unless connection_default_value_defined || attribute_blank?(attribute)
 
         # allow explicitly setting nil through allow nil option
         next if @initialization_attributes.is_a?(Hash) &&
@@ -188,6 +176,19 @@ module DefaultValueFor
           changed_attributes.delete(attribute)
         end
       end
+    end
+
+    def attribute_blank?(attribute)
+      if attributes.key?(attribute)
+        column = self.class.columns_hash[attribute]
+        return attributes[attribute].nil? if column && column.type == :boolean
+        return attributes[attribute].blank?
+      end
+      if respond_to?(attribute)
+        return send(attribute).nil? if !!send(attribute) == send(attribute)
+        return send(attribute).blank?
+      end
+      instance_variable_get("@#{attribute}").nil?
     end
   end
 end
