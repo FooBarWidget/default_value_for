@@ -19,4 +19,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest', '>= 4.2'
   s.add_development_dependency 'minitest-around'
   s.add_development_dependency 'appraisal'
+  s.add_development_dependency 'actionpack', '>= 3.2.0', '< 6.0'
 end
