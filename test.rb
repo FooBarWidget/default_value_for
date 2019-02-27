@@ -22,9 +22,42 @@ require 'bundler/setup'
 require 'minitest/autorun'
 require 'minitest/around/unit'
 require 'active_record'
+require 'action_pack'
 
 if ActiveSupport::VERSION::MAJOR == 3
   require 'active_support/core_ext/logger'
+end
+
+if ActionPack::VERSION::MAJOR > 3
+  require 'action_controller'
+end
+
+# Handle an edge-case when using Arel 5 (i.e. Rails <= 4.1) with Ruby >= 2.4:
+# See: https://github.com/rails/arel/commit/dc85a6e9c74942945ad696f5da4d82490a85b865
+# See: https://stackoverflow.com/a/51481088
+rails_match_data = RUBY_VERSION.match(/\A(?<major>\d+).(?<minor>\d+)/)
+rails_2_4_or_newer = rails_match_data[:major].to_i > 2 || (rails_match_data[:major].to_i == 2 && rails_match_data[:minor].to_i >= 4)
+arel_match_data = Arel::VERSION.match(/\A(?<major>\d+).(?<minor>\d+)/)
+arel_older_than_7_1 = arel_match_data[:major].to_i < 7 || (arel_match_data[:major].to_i == 7 && arel_match_data[:minor].to_i < 1)
+
+if rails_2_4_or_newer && arel_older_than_7_1
+  module Arel
+    module Visitors
+      class DepthFirst < Arel::Visitors::Visitor
+        alias :visit_Integer :terminal
+      end
+
+      class Dot < Arel::Visitors::Visitor
+        alias :visit_Integer :visit_String
+      end
+
+      # The super class for ToSql changed with Arel 6
+      # See: https://github.com/rails/arel/commit/a6a7c75ff486657909e20e2f48764136caa5e87e#diff-3538aead5b80677372eea0e903ff728eR7
+      class ToSql < (Arel::VERSION[/\A\d+/].to_i >= 6 ? Arel::Visitors::Reduce : Arel::Visitors::Visitor)
+        alias :visit_Integer :literal
+      end
+    end
+  end
 end
 
 begin
@@ -35,7 +68,8 @@ end
 
 require 'default_value_for'
 
-puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}\n\n"
+puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}"
+puts "\nTesting with Action Pack version #{ActionPack::VERSION::STRING}\n\n"
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger           = Logger.new(STDERR)
@@ -368,6 +402,38 @@ class DefaultValuePluginTest < TestCaseClass
 
     user = User.create!(:bio => 'This is a bio')
     assert_equal 'This is a bio', user.bio
+  end
+
+  if ActionPack::VERSION::MAJOR > 3
+    def test_doesnt_overwrite_explicitly_provided_nil_values_in_mass_assignment_with_action_controller_parameters
+      Book.default_value_for :number, 1234
+
+      assert_nil Book.new(ActionController::Parameters.new(:number => nil).permit!).number
+    end
+
+    def test_overwrites_explicitly_provided_nil_values_in_mass_assignment_with_action_controller_parameters
+      Book.default_value_for :number, :value => 1234, :allows_nil => false
+
+      assert_equal 1234, Book.new(ActionController::Parameters.new(:number => nil).permit!).number
+    end
+
+    def test_works_with_nested_attributes_with_action_controller_parameters
+      User.accepts_nested_attributes_for :books
+      User.default_value_for :books do
+        [Book.create!(:number => 0)]
+      end
+
+      user = User.create!(ActionController::Parameters.new(:books_attributes => [{:number => 1}]).permit!)
+      assert_equal 1, Book.all.first.number
+    end
+
+    def test_works_with_stored_attribute_accessors_when_initializing_value_that_does_not_allow_nil_with_action_controller_parameters
+      User.store :settings, :accessors => :bio
+      User.default_value_for :bio, :value => 'None given', :allows_nil => false
+
+      user = User.create!(ActionController::Parameters.new(:bio => 'This is a bio').permit!)
+      assert_equal 'This is a bio', user.bio
+    end
   end
 
   if ActiveRecord::VERSION::MAJOR == 3
