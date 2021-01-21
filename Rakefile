@@ -14,6 +14,7 @@ rails_versions = %w(
   5.1
   5.2
   6.0
+  6.1
 )
 
 rails_versions.each do |version|
