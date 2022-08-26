@@ -138,7 +138,7 @@ module DefaultValueFor
       end
 
       if self.class.respond_to? :protected_attributes
-        super(attributes, options)
+        super(attributes.merge(options))
       else
         super(attributes)
       end
