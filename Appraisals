@@ -52,3 +52,7 @@ appraise 'rails-70' do
   gem 'actionpack', '~> 7.0.0'
 end
 
+appraise 'rails-71' do
+  gem 'activerecord', '~> 7.1.0'
+  gem 'actionpack', '~> 7.1.0'
+end
