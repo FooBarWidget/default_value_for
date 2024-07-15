@@ -71,7 +71,13 @@ require 'default_value_for'
 puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}"
 puts "\nTesting with Action Pack version #{ActionPack::VERSION::STRING}\n\n"
 
-ActiveRecord::Base.default_timezone = :local
+if ActiveRecord.respond_to?(:default_timezone)
+  ActiveRecord.default_timezone = :local
+else
+  # Deprecated in rails 7.0, removed in 7.1
+  ActiveRecord::Base.default_timezone = :local
+end
+
 ActiveRecord::Base.logger           = Logger.new(STDERR)
 ActiveRecord::Base.logger.level     = Logger::WARN
 
