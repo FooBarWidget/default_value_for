@@ -60,12 +60,6 @@ if rails_2_4_or_newer && arel_older_than_7_1
   end
 end
 
-begin
-  TestCaseClass = MiniTest::Test
-rescue NameError
-  TestCaseClass = MiniTest::Unit::TestCase
-end
-
 require 'default_value_for'
 
 puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}"
@@ -107,7 +101,7 @@ if defined?(Rails::Railtie)
   DefaultValueFor.initialize_active_record_extensions
 end
 
-class DefaultValuePluginTest < TestCaseClass
+class DefaultValuePluginTest < Minitest::Test
   def around
     Object.const_set(:User, Class.new(ActiveRecord::Base))
     Object.const_set(:Book, Class.new(ActiveRecord::Base))
