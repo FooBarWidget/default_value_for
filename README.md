@@ -20,9 +20,17 @@ u.last_seen  # => Mon Sep 22 17:28:38 +0200 2008
 
 ## Installation
 
-### Rails 3.2 - 4.2 / Ruby 1.9.3 and higher
+### Rails 6.1+ / Ruby 3.0+
 
-The current version of default_value_for (3.x+) is compatible with Rails 3.2 or higher, and Ruby 1.9.3 and higher.
+The objective is to support all supported rubies and rails versions.  If you need to support end of life versions, please see the sections below and use a prior release.
+
+Version 4.0 will only support rails 6.1 and newer and ruby 3.0 and newer.
+
+### Rails 3.2 - 6.0 / Ruby 1.9.3 - 2.7
+
+To use default_value_for with older versions of Ruby and Rails, you must use the previous stable release, 3.6.0 or others in the 3.x.y release. This version works with Rails 3.0, 3.1, and 3.2; and Ruby 1.8.7 and higher. It **does not** work with Rails 4.
+
+default_value_for (3.x+) is compatible with Rails 3.2-6.1, and Ruby 1.9.3 and higher.
 
 Add it to your Gemfile:
 
