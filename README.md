@@ -38,10 +38,6 @@ Add it to your Gemfile:
 gem "default_value_for", "~> 3.0"
 ```
 
-This gem is signed using PGP with the Phusion Software Signing key: http://www.phusion.nl/about/gpg. That key in turn is signed by the rubygems-openpgp Certificate Authority: http://www.rubygems-openpgp-ca.org/.
-
-You can verify the authenticity of the gem by following The Complete Guide to Verifying Gems with rubygems-openpgp: http://www.rubygems-openpgp-ca.org/blog/the-complete-guide-to-verifying-gems-with-rubygems-openpgp.html
-
 ## Rails 3.0 - 3.1 / Ruby 1.9.3 and lower
 
 To use default_value_for with older versions of Ruby and Rails, you must use the previous stable release, 2.0.3. This version works with Rails 3.0, 3.1, and 3.2; and Ruby 1.8.7 and higher. It **does not** work with Rails 4.
