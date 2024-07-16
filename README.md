@@ -24,7 +24,13 @@ u.last_seen  # => Mon Sep 22 17:28:38 +0200 2008
 
 The objective is to support all supported rubies and rails versions.  If you need to support end of life versions, please see the sections below and use a prior release.
 
-Version 4.0.0 will support rails 6.1+ and ruby 3.0+. It will add support for rails 7.2. It will drop support for rubies less than 3.0 and rails less than 6.1.  This is the reason for the major version bump as we'll be dropping a lot of supported combinations of ruby and rails.
+Add it to your Gemfile:
+
+```ruby
+gem "default_value_for", "~> 4.0"
+```
+
+Version 4.0.0 supports rails 6.1+ and ruby 3.0+. It adds support for rails 7.2. It drops support for rubies less than 3.0 and rails less than 6.1.  This is the reason for the major version bump as it drops support for many combinations of older ruby and rails versions.
 
 ### On Rails 3.2 - 6.0 / Ruby 1.9.3 - 2.7
 
