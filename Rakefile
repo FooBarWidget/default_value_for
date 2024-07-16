@@ -1,5 +1,7 @@
 task :default => :test
 
+require "bundler/gem_tasks"
+
 desc "Run unit tests."
 task :test do
   ruby "test.rb"
