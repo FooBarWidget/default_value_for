@@ -62,6 +62,7 @@ end
 
 require 'default_value_for'
 
+puts "\nTesting with ruby version #{RUBY_VERSION}"
 puts "\nTesting with Active Record version #{ActiveRecord::VERSION::STRING}"
 puts "\nTesting with Action Pack version #{ActionPack::VERSION::STRING}\n\n"
 
