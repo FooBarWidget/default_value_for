@@ -541,13 +541,21 @@ That's an awful lot of code. Using `default_value_for` is easier, don't you thin
 
 ### What about other plugins?
 
-I've only been able to find 2 similar plugins:
+There are other ways to accomplish similar results as `default_value_for`.
 
-* Default Value: http://agilewebdevelopment.com/plugins/default_value
+From Rails:
+* [attribute default](https://api.rubyonrails.org/classes/ActiveRecord/Attributes/ClassMethods.html#method-i-attribute)
+* [schema migration column defaults](https://edgeguides.rubyonrails.org/active_record_migrations.html)
 
-* ActiveRecord Defaults: http://agilewebdevelopment.com/plugins/activerecord_defaults
+Other plugins:
+* [Defaults](https://github.com/fnando/defaults)
+* [attribute-defaults](https://github.com/bsm/attribute-defaults)
+* [has_defaults](https://github.com/makandra/has_defaults)
 
-'Default Value' appears to be unmaintained; its SVN link is broken. This leaves only 'ActiveRecord Defaults'. However, it is semantically dubious, which leaves it wide open for corner cases. For example, it is not clearly specified what ActiveRecord Defaults will do when attributes are protected by +attr_protected+ or +attr_accessible+. It is also not clearly specified what one is supposed to do if one needs a custom +initialize+ method in the model.
+Each of these has limitations and should be evaluated based on your use cases.  Two areas where `default_value_for` excels is deriving
+defaults based on the current object or determining the behavior for `nil` values.
+
+If there are other options or uses cases where you've found this gem or another one is useful, please open a pull request to update this page.
 
 I've taken my time to thoroughly document default_value_for's behavior.
 
