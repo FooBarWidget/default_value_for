@@ -24,8 +24,7 @@ u.last_seen  # => Mon Sep 22 17:28:38 +0200 2008
 
 The objective is to support all supported rubies and rails versions.  If you need to support end of life versions, please see the sections below and use a prior release.
 
-Version 4.0.0 will support rails 6.1+ and ruby 3.0+.
-Version 4.0.0 will drop rubies less than 3.0 and rails less than 6.1 and add rails 7.2 on rubies 3.1 and higher.
+Version 4.0.0 will support rails 6.1+ and ruby 3.0+. It will add support for rails 7.2. It will drop support for rubies less than 3.0 and rails less than 6.1.  This is the reason for the major version bump as we'll be dropping a lot of supported combinations of ruby and rails.
 
 ### On Rails 3.2 - 6.0 / Ruby 1.9.3 - 2.7
 
@@ -34,8 +33,8 @@ To use default_value_for with older versions of Ruby and Rails, you must use the
 default_value_for (3.x+) is compatible with Rails 3.2-6.1, and Ruby 1.9.3 and higher.
 
 Note:
-Version 3.5.0: Added basic rails 7.0 support
-Version 3.6.0: Added basic rails 7.1 support
+* Version 3.5.0: Added basic rails 7.0 support
+* Version 3.6.0: Added basic rails 7.1 support
 
 Add it to your Gemfile:
 
