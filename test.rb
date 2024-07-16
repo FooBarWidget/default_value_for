@@ -291,6 +291,25 @@ class DefaultValuePluginTest < Minitest::Test
     assert object.instance_variable_get('@initialized')
   end
 
+  def test_doesnt_conflict_with_prependeed_initialize_method_in_model_class
+    m = Object.const_set("BookOverride", Module.new)
+    m.define_method(:initialize) do |*args|
+      @initialized = true
+      super(:count => 5678)
+    end
+
+    Book.class_eval do
+      prepend BookOverride
+
+      default_value_for :number, 1234
+    end
+
+    object = Book.new
+    assert_equal 1234, object.number
+    assert_equal 5678, object.count
+    assert object.instance_variable_get('@initialized')
+  end
+
   def test_model_instance_is_passed_to_the_given_block
     instance = nil
     Book.default_value_for :number do |n|

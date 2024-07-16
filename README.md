@@ -350,25 +350,30 @@ class User < ActiveRecord::Base
 end
 ```
 
-We recommend you to alias chain your initialize method in models where you use `default_value_for`:
+We recommend you to use Module#prepend in models where you use `default_value_for`:
+
+```ruby
+module UserCustomInitialize
+  def initialize
+    # Do your pre-initialize work
+    super
+    # Do any post-initialize work
+  end
+end
+```
 
 ```ruby
 class User < ActiveRecord::Base
   default_value_for :age, 20
-
-  def initialize_with_my_app
-    initialize_without_my_app(:name => 'Name cannot be changed in constructor')
-  end
-
-  alias_method_chain :initialize, :my_app
+  prepend UserCustomInitialize
 end
 ```
 
-Also, stick with the following rules:
+Also, take the following precautions:
 
-* There is no need to +alias_method_chain+ your initialize method in models that don't use `default_value_for`.
+* Make sure you always call super in your prepended method.
 
-* Make sure that +alias_method_chain+ is called *after* the last `default_value_for` occurrence.
+* It's generally safer to call super first and do your customizations afterwards to ensure everything is setup first.
 
 If your default value is accidentally similar to default_value_for's options hash wrap your default value like this:
 
