@@ -8,14 +8,6 @@ task :test do
 end
 
 rails_versions = %w(
-  3.2
-  4.0
-  4.1
-  4.2
-  5.0
-  5.1
-  5.2
-  6.0
   6.1
   7.0
   7.1

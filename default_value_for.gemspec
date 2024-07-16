@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
     'lib/default_value_for.rb',
     'lib/default_value_for/railtie.rb'
   ]
-  s.add_dependency 'activerecord', '>= 3.2.0', '< 7.2'
+  s.add_dependency 'activerecord', '>= 6.1', '< 7.2'
   s.add_development_dependency 'actionpack', '>= 3.2.0', '< 7.2'
   s.add_development_dependency 'railties', '>= 3.2.0', '< 7.2'
   s.add_development_dependency 'minitest', '>= 5.0'
