@@ -14,8 +14,8 @@ appraise 'rails-71' do
 end
 
 appraise 'rails-72' do
-  gem 'activerecord', '~> 7.2.0.beta3'
-  gem 'actionpack',   '~> 7.2.0.beta3'
+  gem 'activerecord', '~> 7.2.0'
+  gem 'actionpack',   '~> 7.2.0'
 end
 
 appraise 'rails-80' do
