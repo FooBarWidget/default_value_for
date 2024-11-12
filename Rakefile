@@ -29,6 +29,7 @@ rails_versions.each do |version|
   namespace :test do
     desc "Test with Rails #{version}.x"
     task :"rails#{dotless}" do
+      sh 'appraisal install'
       ENV['BUNDLE_GEMFILE'] = "gemfiles/rails_#{dotless}.gemfile"
       ruby "test.rb"
     end
@@ -38,6 +39,7 @@ end
 namespace :test do
   desc "Test with all supported Rails versions"
   task :railsall do
+    sh 'appraisal install'
     rails_versions.each do |version|
       dotless = version.delete('.')
       ENV['BUNDLE_GEMFILE'] = "gemfiles/rails_#{dotless}.gemfile"
