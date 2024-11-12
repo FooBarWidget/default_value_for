@@ -21,4 +21,7 @@ end
 appraise 'rails-80' do
   gem 'activerecord', '~> 8.0.0'
   gem 'actionpack',   '~> 8.0.0'
+  platforms :ruby do
+    gem 'sqlite3', '~> 2.1'
+  end
 end

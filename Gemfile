@@ -8,5 +8,5 @@ platforms :jruby do
 end
 
 platforms :ruby do
-  gem 'sqlite3', '~> 2.1'
+  gem 'sqlite3', '~> 1.3'
 end
