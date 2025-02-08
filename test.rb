@@ -91,6 +91,7 @@ ActiveRecord::Base.connection.create_table(:books, :force => true) do |t|
   t.string :type
   t.integer :number
   t.integer :count, :null => false, :default => 1
+  t.boolean :flag2, :null => false, :default => false
   t.integer :user_id
   t.timestamp :timestamp
   t.text :stuff
@@ -169,6 +170,16 @@ class DefaultValuePluginTest < Minitest::Test
     assert_equal 1234, Book.new.count
   end
 
+  def test_does_not_overwrite_db_default_if_provided_by_mass_assignment
+    Book.default_value_for(:count, :allows_nil => false) { 1234 }
+    assert_equal Book.column_defaults['count'], Book.new(count: Book.column_defaults['count']).count
+  end
+
+  def test_does_not_overwrite_db_default_boolean_value_if_provided_by_mass_assignment
+    Book.default_value_for(:flag2, :allows_nil => false) { true }
+    assert_equal Book.column_defaults['flag2'], Book.new(flag2: Book.column_defaults['flag2']).flag2
+  end
+
   def test_doesnt_overwrite_values_provided_by_mass_assignment
     Book.default_value_for :number, 1234
     assert_equal 1, Book.new(:number => 1, :count => 2).number
@@ -198,6 +209,11 @@ class DefaultValuePluginTest < Minitest::Test
   def test_overwrites_explicitly_provided_nil_values_in_mass_assignment
     Book.default_value_for :number, :value => 1234, :allows_nil => false
     assert_equal 1234, Book.new(:number => nil).number
+  end
+
+  def test_overwrites_string_blank_value_provided_by_mass_assignment
+    Book.default_value_for(:type, :allows_nil => false) { 'string' }
+    assert_equal 'string', Book.new(type: '').type
   end
 
   def test_default_values_are_inherited
