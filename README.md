@@ -39,8 +39,11 @@ To use default_value_for with older versions of Ruby and Rails, you must use the
 default_value_for (3.x+) is compatible with Rails 3.2-6.1, and Ruby 1.9.3 and higher.
 
 Note:
-* Version 3.5.0: Added basic rails 7.0 support
-* Version 3.6.0: Added basic rails 7.1 support
+* Version 3.5.0: Added rails 7.0 support
+* Version 3.6.0: Added rails 7.1 support
+* Version 4.0.0: Added rails 7.2 support
+* Version 4.1.0: Added rails 8.0 support
+* Version 4.2.0: Added rails 8.1 support
 
 Add it to your Gemfile:
 
