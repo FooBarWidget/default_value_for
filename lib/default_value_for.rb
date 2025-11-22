@@ -54,15 +54,22 @@ module DefaultValueFor
     #
     # The <tt>options</tt> can be used to specify the following things:
     # * <tt>value</tt> - Sets the default value.
-    # * <tt>allows_nil (default: true)</tt> - Sets explicitly passed nil values if option is set to true.
+    # * <tt>allow_nil (default: true)</tt> - Sets explicitly passed nil values if option is set to true.
     def default_value_for(attribute, options = {}, &block)
-      value      = options
-      allows_nil = true
+      value     = options
+      allow_nil = true
 
       if options.is_a?(Hash)
-        opts       = options.stringify_keys
-        value      = opts.fetch('value', options)
-        allows_nil = opts.fetch('allows_nil', true)
+        opts      = options.stringify_keys
+        value     = opts.fetch('value', options)
+        allow_nil = opts.fetch('allow_nil') do
+          if opts.key?('allows_nil')
+            # TODO: Add deprecation warning?
+            opts['allows_nil']
+          else
+            true
+          end
+        end
       end
 
       if !singleton_methods(false).include?(:_default_attribute_values)
@@ -85,7 +92,7 @@ module DefaultValueFor
         container = NormalValueContainer.new(value)
       end
       _default_attribute_values[attribute.to_s] = container
-      _default_attribute_values_not_allowing_nil << attribute.to_s unless allows_nil
+      _default_attribute_values_not_allowing_nil << attribute.to_s unless allow_nil
     end
 
     def default_values(values)
