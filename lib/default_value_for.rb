@@ -166,6 +166,17 @@ module DefaultValueFor
                           end
         next unless connection_default_value_defined || attribute_blank
 
+        is_present = -> (value) do
+          if [true, false].include?(value)
+            !value.nil?
+          else
+            value.present?
+          end
+        end
+
+        # Do not overwrite if the attribute is present in @initialization_attributes
+        next if @initialization_attributes.is_a?(Hash) && is_present.call(@initialization_attributes.dig(attribute))
+
         # allow explicitly setting nil through allow nil option
         next if @initialization_attributes.is_a?(Hash) &&
                 (
